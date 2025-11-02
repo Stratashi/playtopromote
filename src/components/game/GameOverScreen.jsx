@@ -1,0 +1,1 @@
+export default function GameOverScreen(){return <div>GameOverScreen.jsx</div>}
