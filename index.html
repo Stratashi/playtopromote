@@ -752,7 +752,31 @@
     </div>
   </footer>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  
   <script>
+    // FIREBASE INITIALIZATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyBX0lxB7NZVMZftkB-T1jp9PfqNkQQHtXg",
+      authDomain: "playtopromote.firebaseapp.com",
+      projectId: "playtopromote",
+      storageBucket: "playtopromote.firebasestorage.app",
+      messagingSenderId: "947196888409",
+      appId: "1:947196888409:web:7c3792b6fe34b238a17848",
+      measurementId: "G-54BNGB4JPH"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    let currentUser = null;
+    let currentRoom = null;
+    let roomListener = null;
+    
     // GAME STATE
     const playerData = {
       username: '',
@@ -814,7 +838,7 @@
       renderGames();
     }
     
-    function submitEntry(e) {
+    async function submitEntry(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const link = document.getElementById('promoLink').value.trim();
@@ -829,11 +853,34 @@
         return;
       }
       
-      playerData.username = username;
-      playerData.link = link;
-      
-      document.getElementById('displayUsername').textContent = username;
-      showGames();
+      try {
+        // Sign in anonymously with Firebase
+        const userCredential = await auth.signInAnonymously();
+        currentUser = userCredential.user;
+        
+        // Create/update user document in Firestore
+        await db.collection('users').doc(currentUser.uid).set({
+          username: username,
+          link: link,
+          totalWins: 0,
+          totalPlays: 0,
+          linkClicks: 0,
+          lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        
+        playerData.username = username;
+        playerData.link = link;
+        
+        document.getElementById('displayUsername').textContent = username;
+        showGames();
+      } catch (error) {
+        console.error('Firebase auth error:', error);
+        alert('Connection error. Using offline mode.');
+        playerData.username = username;
+        playerData.link = link;
+        document.getElementById('displayUsername').textContent = username;
+        showGames();
+      }
     }
     
     function updateStats() {
@@ -851,6 +898,33 @@
           <p class="game-desc">${game.desc}</p>
         </div>
       `).join('');
+    }
+    
+    async function loadLeaderboard() {
+      try {
+        const snapshot = await db.collection('users')
+          .orderBy('totalWins', 'desc')
+          .limit(20)
+          .get();
+        
+        const leaders = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          leaders.push({
+            username: data.username,
+            link: data.link,
+            wins: data.totalWins || 0,
+            clicks: data.linkClicks || 0,
+            plays: data.totalPlays || 0
+          });
+        });
+        
+        leaderboard = leaders;
+        renderLeaderboard();
+      } catch (error) {
+        console.error('Load leaderboard error:', error);
+        renderLeaderboard();
+      }
     }
     
     function renderLeaderboard() {
@@ -872,14 +946,65 @@
     }
     
     // GAME ENGINE
-    function startGame(gameId) {
+    async function startGame(gameId) {
+      currentGame = GAMES.find(g => g.id === gameId);
+      
+      try {
+        // Create a new game room in Firestore
+        const roomRef = await db.collection('rooms').add({
+          gameType: gameId,
+          gameName: currentGame.name,
+          host: currentUser.uid,
+          hostUsername: playerData.username,
+          hostLink: playerData.link,
+          players: {
+            [currentUser.uid]: {
+              username: playerData.username,
+              link: playerData.link,
+              score: 0,
+              ready: true
+            }
+          },
+          state: 'waiting',
+          startTime: null,
+          endTime: null,
+          winner: null,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        currentRoom = roomRef.id;
+        
+        // Listen for room updates
+        roomListener = db.collection('rooms').doc(currentRoom).onSnapshot(snapshot => {
+          const roomData = snapshot.data();
+          if (roomData) {
+            handleRoomUpdate(roomData);
+          }
+        });
+        
+        // Wait for opponent or start with AI after 5 seconds
+        setTimeout(() => {
+          checkAndStartGame();
+        }, 5000);
+        
+        showSection('activePage');
+        document.getElementById('activeGameName').textContent = currentGame.name;
+        document.getElementById('activeInstruction').textContent = 'Waiting for opponent...';
+        
+      } catch (error) {
+        console.error('Room creation error:', error);
+        // Fallback to offline mode
+        startOfflineGame(gameId);
+      }
+    }
+    
+    function startOfflineGame(gameId) {
       currentGame = GAMES.find(g => g.id === gameId);
       showSection('activePage');
       
       document.getElementById('activeGameName').textContent = currentGame.name;
       document.getElementById('activeInstruction').textContent = currentGame.desc;
       
-      // Generate opponent
       const names = ['Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan'];
       opponentName = names[Math.floor(Math.random() * names.length)];
       opponentLink = `https://example.com/${opponentName.toLowerCase()}`;
@@ -893,9 +1018,74 @@
         finished: false
       };
       
-      // Start game logic
       initGame(gameId);
       startTimer();
+    }
+    
+    async function checkAndStartGame() {
+      if (!currentRoom) return;
+      
+      try {
+        const roomDoc = await db.collection('rooms').doc(currentRoom).get();
+        const roomData = roomDoc.data();
+        
+        if (roomData && Object.keys(roomData.players).length >= 2) {
+          // Real opponent joined
+          await db.collection('rooms').doc(currentRoom).update({
+            state: 'playing',
+            startTime: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          // Add AI opponent
+          const names = ['CyberBot', 'PixelWarrior', 'NeonGhost', 'QuantumPlayer'];
+          const aiName = names[Math.floor(Math.random() * names.length)];
+          await db.collection('rooms').doc(currentRoom).update({
+            [`players.ai_${Date.now()}`]: {
+              username: aiName,
+              link: 'https://playtopromote.app',
+              score: 0,
+              ready: true,
+              isAI: true
+            },
+            state: 'playing',
+            startTime: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      } catch (error) {
+        console.error('Start game error:', error);
+      }
+    }
+    
+    function handleRoomUpdate(roomData) {
+      const playersList = Object.values(roomData.players).map(p => p.username).join(', ');
+      document.getElementById('livePlayers').textContent = playersList;
+      
+      if (roomData.state === 'playing' && !gameState.started) {
+        gameState.started = true;
+        const opponents = Object.values(roomData.players).filter(p => p.username !== playerData.username);
+        if (opponents.length > 0) {
+          opponentName = opponents[0].username;
+          opponentLink = opponents[0].link;
+        }
+        document.getElementById('activeInstruction').textContent = currentGame.desc;
+        gameState = {
+          timeLeft: currentGame.duration,
+          playerScore: 0,
+          opponentScore: 0,
+          finished: false,
+          started: true
+        };
+        initGame(currentGame.id);
+        startTimer();
+      }
+      
+      if (roomData.state === 'finished' && roomData.winner) {
+        if (roomListener) {
+          roomListener();
+          roomListener = null;
+        }
+        showWinnerFromRoom(roomData);
+      }
     }
     
     function startTimer() {
@@ -1284,11 +1474,10 @@
       };
     }
     
-    function endGame() {
+    async function endGame() {
       if (gameTimer) clearInterval(gameTimer);
       playerData.totalPlays++;
       
-      // Simulate final opponent score
       gameState.opponentScore += Math.floor(Math.random() * 50);
       
       const playerWon = gameState.playerScore > gameState.opponentScore;
@@ -1300,8 +1489,39 @@
         playerData.linkClicks++;
       }
       
-      // Show winner
+      // Update Firestore if connected
+      if (currentRoom && currentUser) {
+        try {
+          await db.collection('rooms').doc(currentRoom).update({
+            [`players.${currentUser.uid}.score`]: gameState.playerScore,
+            state: 'finished',
+            winner: playerWon ? currentUser.uid : null,
+            winnerName: winner,
+            winnerLink: winnerLink,
+            endTime: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          
+          // Update user stats
+          await db.collection('users').doc(currentUser.uid).update({
+            totalPlays: firebase.firestore.FieldValue.increment(1),
+            totalWins: firebase.firestore.FieldValue.increment(playerWon ? 1 : 0),
+            linkClicks: firebase.firestore.FieldValue.increment(playerWon ? 1 : 0)
+          });
+          
+          // Load updated leaderboard
+          loadLeaderboard();
+        } catch (error) {
+          console.error('Update game error:', error);
+        }
+      }
+      
       showWinner(winner, winnerLink, playerWon);
+    }
+    
+    function showWinnerFromRoom(roomData) {
+      const winnerData = roomData.players[roomData.winner];
+      const isPlayerWinner = roomData.winner === currentUser.uid;
+      showWinner(roomData.winnerName, roomData.winnerLink, isPlayerWinner);
     }
     
     function showWinner(name, link, isPlayer) {
@@ -1345,9 +1565,22 @@
       startGame(currentGame.id);
     }
     
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (roomListener) {
+        roomListener();
+      }
+      if (currentRoom && currentUser) {
+        db.collection('rooms').doc(currentRoom).update({
+          [`players.${currentUser.uid}.active`]: false
+        }).catch(() => {});
+      }
+    });
+    
     // INIT
     window.onload = () => {
       showLanding();
+      loadLeaderboard();
     };
   </script>
 </body>
