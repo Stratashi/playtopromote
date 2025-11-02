@@ -1,1 +1,0 @@
-export default function GameHUD(){return <div>GameHUD.jsx</div>}
