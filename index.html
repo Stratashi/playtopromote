@@ -3,291 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play to Promote - Multiplayer Games & Promotion</title>
+    <title>Play to Promote</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
             color: #fff;
-            overflow-x: hidden;
         }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 40px 20px; margin-bottom: 40px; }
+        h1 { font-size: 3em; background: linear-gradient(45deg, #00d4ff, #8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        .login-page { display: flex; justify-content: center; align-items: center; min-height: 60vh; }
+        .login-card { background: rgba(30, 30, 50, 0.95); border: 2px solid rgba(138, 43, 226, 0.5); border-radius: 20px; padding: 50px; text-align: center; max-width: 400px; }
+        .login-card h2 { margin-bottom: 30px; font-size: 1.8em; color: #00d4ff; }
         
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
-            margin-bottom: 40px;
-        }
+        .button-group { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        button { padding: 15px 30px; font-size: 1.1em; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(45deg, #00d4ff, #0099cc); color: #000; }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-secondary { background: linear-gradient(45deg, #8a2be2, #5a0a92); color: #fff; }
+        .btn-secondary:hover { transform: translateY(-2px); }
         
-        h1 {
-            font-size: 3em;
-            background: linear-gradient(45deg, #00d4ff, #8a2be2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
+        .dashboard-page { display: none; }
+        .dashboard-page.active { display: block; }
         
-        .tagline {
-            font-size: 1.2em;
-            color: #00d4ff;
-        }
+        .profile-header { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 30, 50, 0.95); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(138, 43, 226, 0.3); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: rgba(30, 30, 50, 0.95); border: 2px solid rgba(138, 43, 226, 0.3); padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 2em; font-weight: bold; color: #00d4ff; margin-bottom: 5px; }
+        .stat-label { color: #999; font-size: 0.9em; }
         
-        .login-modal {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 60vh;
-        }
-        
-        .login-card {
-            background: rgba(30, 30, 50, 0.95);
-            border: 2px solid rgba(138, 43, 226, 0.5);
-            border-radius: 20px;
-            padding: 50px;
-            text-align: center;
-            max-width: 400px;
-            box-shadow: 0 8px 32px rgba(138, 43, 226, 0.3);
-        }
-        
-        .login-card h2 {
-            margin-bottom: 30px;
-            font-size: 1.8em;
-            color: #00d4ff;
-        }
-        
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        
-        button {
-            padding: 15px 30px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, #00d4ff, #0099cc);
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(45deg, #8a2be2, #5a0a92);
-            color: #fff;
-            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
-        }
-        
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(138, 43, 226, 0.8);
-        }
-        
-        .profile-form {
-            display: none;
-            background: rgba(30, 30, 50, 0.95);
-            border: 2px solid rgba(138, 43, 226, 0.5);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 450px;
-            margin: 30px auto;
-        }
-        
-        .profile-form.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #00d4ff;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid rgba(138, 43, 226, 0.3);
-            background: rgba(20, 20, 40, 0.8);
-            color: #fff;
-            border-radius: 8px;
-            font-size: 1em;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-        }
-        
-        .dashboard {
-            display: none;
-        }
-        
-        .dashboard.active {
-            display: block;
-        }
-        
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(30, 30, 50, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border: 2px solid rgba(138, 43, 226, 0.3);
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: rgba(30, 30, 50, 0.95);
-            border: 2px solid rgba(138, 43, 226, 0.3);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #00d4ff;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: #999;
-            font-size: 0.9em;
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 212, 255, 0.95);
-            color: #000;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.5);
-            animation: slideIn 0.3s ease;
-            z-index: 1000;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
+        .form-container { background: rgba(30, 30, 50, 0.95); border: 2px solid rgba(138, 43, 226, 0.5); border-radius: 20px; padding: 40px; max-width: 450px; margin: 30px auto; display: none; }
+        .form-container.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #00d4ff; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid rgba(138, 43, 226, 0.3); background: rgba(20, 20, 40, 0.8); color: #fff; border-radius: 8px; font-size: 1em; }
+        .form-group input:focus { outline: none; border-color: #00d4ff; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🎮 Play to Promote</h1>
-            <p class="tagline">Win Games. Get Traffic. Grow Your Brand.</p>
         </header>
         
-        <!-- LOGIN MODAL -->
-        <div id="login-modal" class="login-modal">
+        <!-- LOGIN PAGE -->
+        <div id="login-page" class="login-page">
             <div class="login-card">
                 <h2>Welcome!</h2>
-                <p>Choose how you want to play:</p>
+                <p style="margin-bottom: 20px;">Choose how you want to play:</p>
                 <div class="button-group">
-                    <button class="btn-primary" onclick="startQuickPlay()">⚡ Quick Play</button>
-                    <button class="btn-secondary" onclick="showProfileForm()">👤 Create Profile</button>
+                    <button class="btn-primary" id="quick-play-btn">⚡ Quick Play</button>
+                    <button class="btn-secondary" id="create-profile-btn">👤 Create Profile</button>
                 </div>
             </div>
         </div>
         
         <!-- PROFILE FORM -->
-        <div id="profile-form" class="profile-form">
+        <div id="form-container" class="form-container">
             <h2 style="text-align: center; margin-bottom: 30px; color: #00d4ff;">Create Profile</h2>
-            <form onsubmit="createProfile(event)">
+            <form id="profile-form">
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" id="username" placeholder="Choose username" required>
+                    <input type="text" id="username" placeholder="Username" required>
                 </div>
                 <div class="form-group">
                     <label>Promo Link</label>
                     <input type="url" id="promo-link" placeholder="https://your-link.com" required>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 30px;">
-                    <button type="button" class="btn-secondary" onclick="hideProfileForm()">Cancel</button>
+                    <button type="button" class="btn-secondary" id="cancel-btn">Cancel</button>
                     <button type="submit" class="btn-primary">Create</button>
                 </div>
             </form>
         </div>
         
-        <!-- DASHBOARD -->
-        <div id="dashboard" class="dashboard">
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard-page" class="dashboard-page">
             <div class="profile-header">
                 <div>
-                    <h3 id="display-username">Welcome!</h3>
-                    <p id="display-link" style="color: #00d4ff;">Not provided</p>
+                    <h3 id="username-display">Welcome!</h3>
+                    <p id="link-display" style="color: #00d4ff; font-size: 0.9em;"></p>
                 </div>
-                <button class="btn-secondary" onclick="logout()">Logout</button>
+                <button class="btn-secondary" id="logout-btn" style="padding: 10px 20px;">Logout</button>
             </div>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-value" id="credits-display">0</div>
+                    <div class="stat-value" id="credits">0</div>
                     <div class="stat-label">Credits</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="score-display">0</div>
+                    <div class="stat-value" id="score">0</div>
                     <div class="stat-label">Score</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="wins-display">0</div>
+                    <div class="stat-value" id="wins">0</div>
                     <div class="stat-label">Wins</div>
                 </div>
             </div>
             
-            <button class="btn-primary" onclick="findGame()" style="width: 100%; padding: 20px;">🎮 Find Game</button>
+            <button class="btn-primary" id="find-game-btn" style="width: 100%; padding: 20px; margin: 20px 0;">🎮 Find Game</button>
+            
+            <div id="games-section" style="display: none; margin-top: 40px;">
+                <h3 style="margin-bottom: 20px; color: #00d4ff;">Select a Game:</h3>
+                <div class="stats-grid">
+                    <button class="btn-secondary" style="padding: 30px 20px; cursor: pointer;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">❓</div>
+                        <div>Trivia</div>
+                    </button>
+                    <button class="btn-secondary" style="padding: 30px 20px; cursor: pointer;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">⚡</div>
+                        <div>Reaction</div>
+                    </button>
+                    <button class="btn-secondary" style="padding: 30px 20px; cursor: pointer;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">🎲</div>
+                        <div>Number</div>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -310,9 +150,33 @@
         let currentLink = "";
         let userStats = { credits: 0, score: 0, wins: 0 };
         
-        window.addEventListener('DOMContentLoaded', restoreSession);
+        const quickPlayBtn = document.getElementById('quick-play-btn');
+        const createProfileBtn = document.getElementById('create-profile-btn');
+        const profileForm = document.getElementById('profile-form');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const findGameBtn = document.getElementById('find-game-btn');
         
-        function restoreSession() {
+        const loginPage = document.getElementById('login-page');
+        const formContainer = document.getElementById('form-container');
+        const dashboardPage = document.getElementById('dashboard-page');
+        
+        quickPlayBtn.addEventListener('click', quickPlay);
+        createProfileBtn.addEventListener('click', () => {
+            loginPage.style.display = 'none';
+            formContainer.classList.add('active');
+        });
+        cancelBtn.addEventListener('click', () => {
+            formContainer.classList.remove('active');
+            loginPage.style.display = 'flex';
+        });
+        profileForm.addEventListener('submit', createProfile);
+        logoutBtn.addEventListener('click', logout);
+        findGameBtn.addEventListener('click', () => {
+            document.getElementById('games-section').style.display = document.getElementById('games-section').style.display === 'none' ? 'block' : 'none';
+        });
+        
+        window.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('ptpUser');
             if (saved) {
                 const user = JSON.parse(saved);
@@ -322,24 +186,18 @@
                 userStats = user.stats || userStats;
                 showDashboard();
             }
-        }
+        });
         
-        async function startQuickPlay() {
-            const result = await auth.signInAnonymously();
-            currentUser = { uid: result.user.uid };
-            currentUsername = `Player_${Math.random().toString(36).substr(2, 9)}`;
-            currentLink = "https://playtopromote.com";
-            showDashboard();
-        }
-        
-        function showProfileForm() {
-            document.getElementById('login-modal').style.display = 'none';
-            document.getElementById('profile-form').classList.add('active');
-        }
-        
-        function hideProfileForm() {
-            document.getElementById('profile-form').classList.remove('active');
-            document.getElementById('login-modal').style.display = 'flex';
+        async function quickPlay() {
+            try {
+                const result = await auth.signInAnonymously();
+                currentUser = { uid: result.user.uid };
+                currentUsername = `Player_${Math.random().toString(36).substr(2, 9)}`;
+                currentLink = "https://playtopromote.com";
+                showDashboard();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
         }
         
         async function createProfile(e) {
@@ -347,40 +205,43 @@
             const username = document.getElementById('username').value;
             const link = document.getElementById('promo-link').value;
             
-            const result = await auth.signInAnonymously();
-            const uid = result.user.uid;
-            currentUser = { uid: uid };
-            currentUsername = username;
-            currentLink = link;
-            
-            await db.collection("users").doc(uid).set({
-                username, link, uid, score: 0, credits: 0, wins: 0, createdAt: new Date()
-            });
-            
-            localStorage.setItem('ptpUser', JSON.stringify({ uid, username, link, stats: userStats }));
-            showDashboard();
+            try {
+                const result = await auth.signInAnonymously();
+                const uid = result.user.uid;
+                currentUser = { uid: uid };
+                currentUsername = username;
+                currentLink = link;
+                
+                await db.collection("users").doc(uid).set({
+                    username, link, uid, score: 0, credits: 0, wins: 0, createdAt: new Date()
+                });
+                
+                localStorage.setItem('ptpUser', JSON.stringify({ uid, username, link, stats: userStats }));
+                showDashboard();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
         }
         
         function showDashboard() {
-            document.getElementById('login-modal').style.display = 'none';
-            document.getElementById('profile-form').classList.remove('active');
-            document.getElementById('dashboard').classList.add('active');
-            document.getElementById('display-username').textContent = `👋 ${currentUsername}`;
-            document.getElementById('display-link').textContent = currentLink;
-            document.getElementById('credits-display').textContent = userStats.credits;
-            document.getElementById('score-display').textContent = userStats.score;
-            document.getElementById('wins-display').textContent = userStats.wins;
-        }
-        
-        function findGame() {
-            alert('🎮 Game rooms coming soon! Your multiplayer is ready.');
+            loginPage.style.display = 'none';
+            formContainer.classList.remove('active');
+            dashboardPage.classList.add('active');
+            
+            document.getElementById('username-display').textContent = `👋 ${currentUsername}`;
+            document.getElementById('link-display').textContent = currentLink;
+            document.getElementById('credits').textContent = userStats.credits;
+            document.getElementById('score').textContent = userStats.score;
+            document.getElementById('wins').textContent = userStats.wins;
         }
         
         function logout() {
             localStorage.removeItem('ptpUser');
             currentUser = null;
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('login-modal').style.display = 'flex';
+            dashboardPage.classList.remove('active');
+            loginPage.style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('promo-link').value = '';
         }
     </script>
 </body>
