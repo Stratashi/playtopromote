@@ -5,19 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Play to Promote</title>
     <style>
-        /* ...your CSS styles from before... */
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #fff; margin:0; }
+        .container { padding: 40px; margin: auto; max-width: 500px; }
+        .card { background: #16213e; padding: 32px; border-radius: 16px; text-align: center; box-shadow: 0 4px 32px #0003; margin-bottom: 24px; }
+        h1 { margin-bottom: 24px; color: #00d4ff; }
+        h2 { color: #00d4ff; margin-bottom: 18px; }
+        button { background: #00d4ff; color: #222; border:none; border-radius:8px; font-size:1.2em; padding:14px 0; width:90%; margin:10px 0; font-weight:bold; cursor:pointer; transition:.2s; }
+        button:hover { background: #00a8cc }
+        .btn-secondary { background: #8a2be2; color: #fff; }
+        .profile-form, .dashboard { display:none; }
+        label { color:#00d4ff; font-size:1em; margin-bottom:6px;}
+        input { width:90%; margin:0 auto 18px; padding:12px; border-radius:6px; border:none; background:#0f3460; color:#fff;}
+        .dashboard {text-align:center;}
     </style>
 </head>
 <body>
-    <!-- ...your HTML markup from before... -->
+    <div class="container">
+        <div class="card" id="login-card">
+            <h1>🎮 Play to Promote</h1>
+            <h2>Welcome!</h2>
+            <button onclick="quickPlay()" id="quick-btn">⚡ Quick Play</button>
+            <button onclick="showProfileForm()" class="btn-secondary" id="profile-btn">👤 Create Profile</button>
+        </div>
+        <div class="profile-form card" id="profile-form">
+            <h2>Create Profile</h2>
+            <form onsubmit="createProfile(event)">
+                <label>Username</label>
+                <input type="text" id="username" required>
+                <label>Promo Link</label>
+                <input type="url" id="promo-link" required>
+                <button type="submit" class="btn-secondary">Create</button>
+                <button type="button" onclick="hideProfileForm()">Cancel</button>
+            </form>
+        </div>
+        <div class="dashboard card" id="dashboard">
+            <h2 id="dashboard-name">Welcome!</h2>
+            <p id="dashboard-link" style="color:#00d4ff;"></p>
+            <p>Credits: <span id="credits">0</span> | Score: <span id="score">0</span> | Wins: <span id="wins">0</span></p>
+            <button onclick="logout()" class="btn-secondary">Logout</button>
+        </div>
+    </div>
 
-    <!-- Firebase SDKs: Must be here, just above your own JS -->
+    <!-- Firebase SDKs at end of body, BEFORE your own JS -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-    <!-- Your main app JS: Comes LAST, must be below all Firebase SDKs -->
     <script>
-        // ==> Main JS placed here, after all SDKs <==
         const firebaseConfig = {
             apiKey: "AIzaSyBX0lxB7NZVMZftkB-T1jp9PfqNkQQHtXg",
             authDomain: "playtopromote.firebaseapp.com",
@@ -26,14 +59,72 @@
             messagingSenderId: "947196888409",
             appId: "1:947196888409:web:7c3792b6fe34b238a17848"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ...All other logic (login, session, dashboard, events) goes here...
+        let currentUser = null;
+        let currentUsername = "";
+        let currentLink = "";
+        let stats = {credits:0,score:0,wins:0};
 
-        // Example login code (see previous response)
+        window.addEventListener('DOMContentLoaded', () => {
+            const ses = localStorage.getItem('ptpSession');
+            if(ses){ 
+                let u=JSON.parse(ses);
+                currentUser=u.uid;currentUsername=u.username;currentLink=u.link;stats=u.stats||stats;
+                showDashboard();
+            }
+        });
+
+        function quickPlay() {
+            auth.signInAnonymously().then(res=>{
+                currentUser=res.user.uid;
+                currentUsername=`Player_${Math.random().toString(36).substr(2,9)}`;
+                currentLink="https://playtopromote.com";
+                saveSession();
+                showDashboard();
+            });
+        }
+        function showProfileForm(){
+            document.getElementById('login-card').style.display='none';
+            document.getElementById('profile-form').style.display='block';
+        }
+        function hideProfileForm(){
+            document.getElementById('profile-form').style.display='none';
+            document.getElementById('login-card').style.display='block';
+        }
+        function createProfile(e){
+            e.preventDefault();
+            let un=document.getElementById('username').value;
+            let lk=document.getElementById('promo-link').value;
+            auth.signInAnonymously().then(async res=>{
+                let uid=res.user.uid;
+                currentUser=uid;currentUsername=un;currentLink=lk;
+                await db.collection('users').doc(uid).set({username:un,link:lk,uid:uid,score:0,credits:0,wins:0,createdAt:new Date()});
+                saveSession();
+                showDashboard();
+            });
+        }
+        function saveSession(){
+            localStorage.setItem('ptpSession',JSON.stringify({uid:currentUser,username:currentUsername,link:currentLink,stats:stats}));
+        }
+        function showDashboard(){
+            document.getElementById('login-card').style.display='none';
+            document.getElementById('profile-form').style.display='none';
+            document.getElementById('dashboard').style.display='block';
+            document.getElementById('dashboard-name').textContent=`👋 ${currentUsername}`;
+            document.getElementById('dashboard-link').textContent=currentLink;
+            document.getElementById('credits').textContent=stats.credits;
+            document.getElementById('score').textContent=stats.score;
+            document.getElementById('wins').textContent=stats.wins;
+        }
+        function logout(){
+            localStorage.removeItem('ptpSession');
+            currentUser=null;currentUsername="";currentLink="";stats={credits:0,score:0,wins:0};
+            document.getElementById('dashboard').style.display='none';
+            document.getElementById('login-card').style.display='block';
+        }
     </script>
 </body>
 </html>
