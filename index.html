@@ -4,192 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Play to Promote</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #1a1a2e;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container { width: 100%; max-width: 1200px; padding: 20px; }
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 2.5em; color: #00d4ff; margin-bottom: 10px; }
-        
-        .page { display: none; }
-        .page.active { display: block; }
-        
-        .login-container {
-            background: #16213e;
-            padding: 40px;
-            border-radius: 10px;
-            max-width: 400px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        
-        .login-container h2 { margin-bottom: 30px; color: #00d4ff; }
-        
-        button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        .btn-quick { background: #00d4ff; color: #000; }
-        .btn-quick:hover { background: #00a8cc; }
-        
-        .btn-profile { background: #8a2be2; color: #fff; }
-        .btn-profile:hover { background: #6b1db5; }
-        
-        .btn-logout { background: #ff4444; color: #fff; width: auto; padding: 8px 15px; }
-        
-        .dashboard {
-            background: #16213e;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .profile-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .profile-info h2 { color: #00d4ff; }
-        
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat { background: #0f3460; padding: 20px; border-radius: 5px; text-align: center; }
-        .stat-value { font-size: 2em; color: #00d4ff; font-weight: bold; }
-        .stat-label { color: #999; margin-top: 5px; }
-        
-        .games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
-        .game-card { background: #0f3460; padding: 20px; border-radius: 5px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .game-card:hover { background: #1a5490; }
-        .game-card .icon { font-size: 2em; margin-bottom: 10px; }
-        
-        .form-container {
-            background: #16213e;
-            padding: 40px;
-            border-radius: 10px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #00d4ff; font-weight: bold; }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #00d4ff;
-            border-radius: 5px;
-            background: #0f3460;
-            color: #fff;
-            font-size: 1em;
-        }
-        
-        .form-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        
-        @media (max-width: 600px) {
-            h1 { font-size: 1.8em; }
-            .games-grid { grid-template-columns: 1fr; }
-            .stats { grid-template-columns: 1fr; }
-        }
+        /* ...your CSS styles from before... */
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎮 Play to Promote</h1>
-        </header>
-        
-        <!-- LOGIN PAGE -->
-        <div id="login-page" class="page active">
-            <div class="login-container">
-                <h2>Welcome!</h2>
-                <p style="margin-bottom: 30px;">Choose how to play:</p>
-                <button class="btn-quick" onclick="quickPlay()">⚡ Quick Play</button>
-                <button class="btn-profile" onclick="showProfileForm()">👤 Create Profile</button>
-            </div>
-        </div>
-        
-        <!-- PROFILE FORM PAGE -->
-        <div id="profile-page" class="page">
-            <div class="form-container">
-                <h2 style="text-align: center; margin-bottom: 30px; color: #00d4ff;">Create Profile</h2>
-                <form onsubmit="createProfile(event)">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="username" placeholder="Your username" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Promo Link</label>
-                        <input type="url" id="promo-link" placeholder="https://your-link.com" required>
-                    </div>
-                    <div class="form-buttons">
-                        <button type="button" class="btn-quick" onclick="backToLogin()" style="background: #666;">Back</button>
-                        <button type="submit" class="btn-profile">Create</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <!-- DASHBOARD PAGE -->
-        <div id="dashboard-page" class="page">
-            <div class="dashboard">
-                <div class="profile-info">
-                    <div>
-                        <h2 id="user-name">Welcome!</h2>
-                        <p id="user-link" style="color: #00d4ff; font-size: 0.9em;">Your Link</p>
-                    </div>
-                    <button class="btn-logout" onclick="logout()">Logout</button>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-value" id="credits-val">0</div>
-                        <div class="stat-label">Credits</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" id="score-val">0</div>
-                        <div class="stat-label">Score</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value" id="wins-val">0</div>
-                        <div class="stat-label">Wins</div>
-                    </div>
-                </div>
-                
-                <h3 style="color: #00d4ff; margin-bottom: 20px;">🎮 Available Games:</h3>
-                <div class="games-grid">
-                    <div class="game-card" onclick="playGame('trivia')">
-                        <div class="icon">❓</div>
-                        <div>Trivia Battle</div>
-                    </div>
-                    <div class="game-card" onclick="playGame('reaction')">
-                        <div class="icon">⚡</div>
-                        <div>Reaction Master</div>
-                    </div>
-                    <div class="game-card" onclick="playGame('number')">
-                        <div class="icon">🎲</div>
-                        <div>Number Roulette</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+    <!-- ...your HTML markup from before... -->
+
+    <!-- Firebase SDKs: Must be here, just above your own JS -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <!-- Your main app JS: Comes LAST, must be below all Firebase SDKs -->
     <script>
-        // Firebase Config
+        // ==> Main JS placed here, after all SDKs <==
         const firebaseConfig = {
             apiKey: "AIzaSyBX0lxB7NZVMZftkB-T1jp9PfqNkQQHtXg",
             authDomain: "playtopromote.firebaseapp.com",
@@ -198,117 +26,14 @@
             messagingSenderId: "947196888409",
             appId: "1:947196888409:web:7c3792b6fe34b238a17848"
         };
-        
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
-        // State
-        let currentUser = null;
-        let currentUsername = "";
-        let currentLink = "";
-        let stats = { credits: 0, score: 0, wins: 0 };
-        
-        // Initialize
-        window.addEventListener('load', checkSession);
-        
-        function checkSession() {
-            const saved = localStorage.getItem('ptpSession');
-            if (saved) {
-                const user = JSON.parse(saved);
-                currentUser = user.uid;
-                currentUsername = user.username;
-                currentLink = user.link;
-                stats = user.stats || stats;
-                showDashboard();
-            }
-        }
-        
-        async function quickPlay() {
-            try {
-                const result = await auth.signInAnonymously();
-                currentUser = result.user.uid;
-                currentUsername = `Player_${Math.random().toString(36).substr(2, 9)}`;
-                currentLink = "https://playtopromote.com";
-                saveSes();
-                showDashboard();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-        
-        function showProfileForm() {
-            document.getElementById('login-page').classList.remove('active');
-            document.getElementById('profile-page').classList.add('active');
-        }
-        
-        function backToLogin() {
-            document.getElementById('profile-page').classList.remove('active');
-            document.getElementById('login-page').classList.add('active');
-        }
-        
-        async function createProfile(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const link = document.getElementById('promo-link').value;
-            
-            if (!username || !link) {
-                alert('Please fill all fields');
-                return;
-            }
-            
-            try {
-                const result = await auth.signInAnonymously();
-                currentUser = result.user.uid;
-                currentUsername = username;
-                currentLink = link;
-                
-                await db.collection("users").doc(currentUser).set({
-                    username, link, uid: currentUser, score: 0, credits: 0, wins: 0, createdAt: new Date()
-                });
-                
-                saveSes();
-                showDashboard();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        }
-        
-        function saveSes() {
-            localStorage.setItem('ptpSession', JSON.stringify({
-                uid: currentUser,
-                username: currentUsername,
-                link: currentLink,
-                stats: stats
-            }));
-        }
-        
-        function showDashboard() {
-            document.getElementById('login-page').classList.remove('active');
-            document.getElementById('profile-page').classList.remove('active');
-            document.getElementById('dashboard-page').classList.add('active');
-            
-            document.getElementById('user-name').textContent = `👋 ${currentUsername}`;
-            document.getElementById('user-link').textContent = currentLink;
-            document.getElementById('credits-val').textContent = stats.credits;
-            document.getElementById('score-val').textContent = stats.score;
-            document.getElementById('wins-val').textContent = stats.wins;
-        }
-        
-        function playGame(game) {
-            alert(`🎮 ${game} game starting... This will connect to multiplayer rooms soon!`);
-        }
-        
-        function logout() {
-            localStorage.removeItem('ptpSession');
-            currentUser = null;
-            currentUsername = "";
-            currentLink = "";
-            stats = { credits: 0, score: 0, wins: 0 };
-            
-            document.getElementById('dashboard-page').classList.remove('active');
-            document.getElementById('login-page').classList.add('active');
-        }
+
+        // ...All other logic (login, session, dashboard, events) goes here...
+
+        // Example login code (see previous response)
     </script>
 </body>
 </html>
