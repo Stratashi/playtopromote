@@ -1,13 +1,379 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Test Image</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Play to Promote - Win Games, Promote Your Links</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>PlayToPromote.com Coming Soon...</h1>
-    <img src="test.png" alt="Test Image">
-</body>
+  <!-- Hero Section -->
+  <section id="hero" class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Play to Promote</h1>
+      <p class="hero-subtitle">Win the game, promote your link. Every player is a potential visitor.</p>
+      <button class="btn btn-primary btn-large" onclick="scrollToForm()">Start Playing Now</button>
+    </div>
+    <div class="hero-decoration">
+      <div class="floating-orb orb-1"></div>
+      <div class="floating-orb orb-2"></div>
+      <div class="floating-orb orb-3"></div>
+    </div>
+  </section>
 
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="section">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Enter Your Details</h3>
+          <p>Submit your username and promotional link</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Join the Lobby</h3>
+          <p>Enter the matchmaking queue with other players</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Compete in Real-Time</h3>
+          <p>Play against others in a multiplayer game</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h3>Winner Takes All</h3>
+          <p>Winner's link gets visited by all players</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">5</div>
+          <h3>Gain Exposure</h3>
+          <p>Everyone gets visibility, winner gets maximum clicks</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Registration Form Section -->
+  <section id="registration" class="section section-dark">
+    <div class="container">
+      <h2 class="section-title">Join the Game</h2>
+      <div class="form-container">
+        <form id="registrationForm" class="registration-form">
+          <div class="form-group">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required minlength="3" maxlength="20">
+            <span class="error-message" id="username-error"></span>
+          </div>
+          
+          <div class="form-group">
+            <label for="linkUrl" class="form-label">Your Promotional Link</label>
+            <input type="url" id="linkUrl" name="linkUrl" class="form-control" placeholder="https://example.com/your-link" required>
+            <span class="error-message" id="linkUrl-error"></span>
+          </div>
+          
+          <div class="form-group">
+            <label for="linkType" class="form-label">Link Type</label>
+            <select id="linkType" name="linkType" class="form-control" required>
+              <option value="">Select link type...</option>
+              <option value="Social Media">Social Media</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Blog">Blog</option>
+              <option value="Portfolio">Portfolio</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="error-message" id="linkType-error"></span>
+          </div>
+          
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="terms" name="terms" required>
+              <span>I agree to the Terms of Service and Privacy Policy</span>
+            </label>
+            <span class="error-message" id="terms-error"></span>
+          </div>
+          
+          <button type="submit" class="btn btn-primary btn-large btn-full">Enter Game Lobby</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section id="benefits" class="section">
+    <div class="container">
+      <h2 class="section-title">Why Play to Promote?</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">🎁</div>
+          <h3>Free Promotion</h3>
+          <p>No cost to promote your links to real users</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">👥</div>
+          <h3>Real Engagement</h3>
+          <p>Get clicks from actual players, not bots</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">⚖️</div>
+          <h3>Fair Competition</h3>
+          <p>Everyone has an equal chance to win</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">⚡</div>
+          <h3>Quick Games</h3>
+          <p>Fast-paced matches with instant results</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">📊</div>
+          <h3>Track Results</h3>
+          <p>Monitor your performance and statistics</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Game Preview Section -->
+  <section id="game-preview" class="section section-dark">
+    <div class="container">
+      <h2 class="section-title">Game Preview</h2>
+      <div class="preview-container">
+        <div class="preview-placeholder">
+          <div class="coming-soon-badge">Coming Soon</div>
+          <p class="preview-text">Your game will appear here</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">247</div>
+            <div class="stat-label">Active Players</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">1,543</div>
+            <div class="stat-label">Games Today</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">8,921</div>
+            <div class="stat-label">Links Promoted</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="#" target="_blank">About</a>
+          <a href="#" target="_blank">Privacy Policy</a>
+          <a href="#" target="_blank">Terms</a>
+          <a href="#" target="_blank">Contact</a>
+        </div>
+        <div class="footer-social">
+          <a href="#" target="_blank" class="social-icon">📘</a>
+          <a href="#" target="_blank" class="social-icon">🐦</a>
+          <a href="#" target="_blank" class="social-icon">📸</a>
+          <a href="#" target="_blank" class="social-icon">💼</a>
+        </div>
+        <div class="footer-copyright">
+          &copy; 2025 Play to Promote. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lobby View (Hidden by default) -->
+  <div id="lobbyView" class="game-view" style="display: none;">
+    <div class="game-container">
+      <div class="lobby-header">
+        <h2>Welcome, <span id="lobbyUsername"></span>!</h2>
+        <p class="lobby-link">Your link: <a id="lobbyUserLink" href="#" target="_blank"></a></p>
+      </div>
+      
+      <div class="lobby-content">
+        <div class="searching-animation">
+          <div class="spinner"></div>
+          <h3>Searching for players...</h3>
+        </div>
+        
+        <div class="lobby-info">
+          <div class="player-count">
+            <span class="count-label">Players:</span>
+            <span class="count-value"><span id="currentPlayers">1</span>/4</span>
+          </div>
+          <div class="estimated-time">
+            <span>Estimated wait: <span id="waitTime">10</span>s</span>
+          </div>
+        </div>
+        
+        <div class="players-list">
+          <h4>Waiting Players</h4>
+          <ul id="playersList"></ul>
+        </div>
+        
+        <button class="btn btn-secondary" onclick="cancelQueue()">Leave Queue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Match Found View -->
+  <div id="matchFoundView" class="game-view" style="display: none;">
+    <div class="game-container">
+      <div class="match-found-animation">
+        <h2 class="pulse-text">Match Found!</h2>
+        <p class="countdown-text">Game starting in <span id="matchCountdown">3</span>...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game View -->
+  <div id="gameView" class="game-view" style="display: none;">
+    <div class="game-container">
+      <div class="game-header">
+        <h3>Game in Progress</h3>
+        <div class="game-timer">Time: <span id="gameTimer">15</span>s</div>
+      </div>
+      
+      <div class="game-placeholder">
+        <div class="game-info">
+          <h2>Your multiplayer game will be integrated here</h2>
+          <p>This is where your custom game mechanics will appear</p>
+        </div>
+        
+        <div class="mock-game-area">
+          <div class="player-scores">
+            <div class="player-score" id="score1">
+              <span class="player-name"></span>
+              <span class="score-value">0</span>
+            </div>
+            <div class="player-score" id="score2">
+              <span class="player-name"></span>
+              <span class="score-value">0</span>
+            </div>
+            <div class="player-score" id="score3">
+              <span class="player-name"></span>
+              <span class="score-value">0</span>
+            </div>
+            <div class="player-score" id="score4">
+              <span class="player-name"></span>
+              <span class="score-value">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Winner View -->
+  <div id="winnerView" class="game-view" style="display: none;">
+    <div class="game-container">
+      <div class="winner-announcement">
+        <h2 class="winner-title"><span id="winnerName"></span> wins!</h2>
+        <div class="trophy-icon">🏆</div>
+        
+        <div class="redirect-info">
+          <p>Visiting winner's link in <span id="redirectCountdown">5</span> seconds...</p>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <p class="winner-link">Link: <a id="winnerLinkDisplay" href="#" target="_blank"></a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Redirect View -->
+  <div id="redirectView" class="game-view" style="display: none;">
+    <div class="game-container">
+      <div class="redirect-message">
+        <div class="spinner"></div>
+        <h2>Redirecting to winner's link...</h2>
+        <p class="redirect-link"><a id="redirectLinkDisplay" href="#" target="_blank"></a></p>
+        <p class="redirect-note">Opening in new window for demo purposes</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Game View -->
+  <div id="postGameView" class="game-view" style="display: none;">
+    <div class="game-container">
+      <h2 class="section-title">Game Complete!</h2>
+      
+      <div class="post-game-stats">
+        <h3>Your Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number" id="userGamesPlayed">1</div>
+            <div class="stat-label">Games Played</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="userWins">0</div>
+            <div class="stat-label">Wins</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="userClicks">0</div>
+            <div class="stat-label">Clicks Received</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="leaderboard">
+        <h3>Top Players</h3>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Wins</th>
+              <th>Games</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>ProGamer2024</td>
+              <td>47</td>
+              <td>203</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>LinkMaster</td>
+              <td>39</td>
+              <td>156</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>DigitalMarketer</td>
+              <td>35</td>
+              <td>178</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>SocialSavvy</td>
+              <td>31</td>
+              <td>142</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>ContentCreator</td>
+              <td>28</td>
+              <td>134</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="post-game-actions">
+        <button class="btn btn-primary btn-large" onclick="playAgain()">Play Another Game</button>
+        <button class="btn btn-secondary" onclick="updateLink()">Update My Link</button>
+        <button class="btn btn-outline" onclick="returnHome()">Return to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
 </html>
