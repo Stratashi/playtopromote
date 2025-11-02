@@ -1,3 +1,5 @@
+// Game configuration - no upgrades system
+
 // Game Data from JSON
 const GAME_DATA = {
   powerUps: [
@@ -27,6 +29,8 @@ const GAME_DATA = {
   xpRewards: { kill: 10, portal_kill: 15, assist: 5, win: 100, participation: 20, daily_bonus: 50 }
 };
 
+
+
 // Player Progression
 let playerProgression = {
   level: 1,
@@ -40,6 +44,11 @@ let playerProgression = {
   currentStreak: 0
 };
 
+// Session state (not using localStorage due to sandbox restrictions)
+let sessionState = {
+  hasSeenTutorial: false
+};
+
 // Game State Management
 let gameState = {
   username: '',
@@ -49,8 +58,17 @@ let gameState = {
   gamesPlayed: 0,
   wins: 0,
   clicksReceived: 0,
-  currentWinner: null
+  currentWinner: null,
+  opponentType: 'AI', // 'Real' or 'AI'
+  opponentName: '',
+  opponentLink: ''
 };
+
+// Matchmaking Queue (simulated multiplayer)
+let matchmakingQueue = [];
+let queueTimeout = null;
+let queueStartTime = null;
+let queueDuration = 0;
 
 // Sample players for demo
 const samplePlayers = [
@@ -154,23 +172,117 @@ registrationForm.addEventListener('submit', function(e) {
 
 // Lobby Functions
 function enterLobby() {
-  // Update lobby view with user data
-  document.getElementById('lobbyUsername').textContent = gameState.username;
-  document.getElementById('lobbyUserLink').textContent = gameState.link;
-  document.getElementById('lobbyUserLink').href = gameState.link;
+  // Go directly to queue instead of old lobby
+  enterMatchmakingQueue();
+}
+
+function enterMatchmakingQueue() {
+  // Update queue view with user data
+  document.getElementById('queueUserLink').textContent = gameState.link;
+  document.getElementById('queueUserLink').href = gameState.link;
   
-  // Create player list
-  gameState.currentPlayers = [
-    { username: gameState.username, link: gameState.link },
-    ...samplePlayers.slice(0, 3)
-  ];
+  showView('queueView');
   
-  updatePlayersList();
+  // Random timeout between 12-25 seconds
+  queueDuration = Math.floor(Math.random() * (25 - 12 + 1)) + 12;
+  queueStartTime = Date.now();
   
-  showView('lobbyView');
+  // Add player to queue
+  matchmakingQueue.push({
+    username: gameState.username,
+    link: gameState.link,
+    timestamp: Date.now()
+  });
   
-  // Simulate matchmaking
-  simulateMatchmaking();
+  // Start countdown
+  startMatchmakingCountdown();
+}
+
+function startMatchmakingCountdown() {
+  let remainingTime = queueDuration;
+  document.getElementById('queueCountdown').textContent = remainingTime;
+  document.getElementById('queueTimeRemaining').textContent = remainingTime;
+  document.getElementById('matchType').textContent = 'Searching...';
+  
+  queueTimeout = setInterval(() => {
+    remainingTime--;
+    document.getElementById('queueCountdown').textContent = remainingTime;
+    document.getElementById('queueTimeRemaining').textContent = remainingTime;
+    
+    // Check for real opponents (simulate)
+    const hasRealOpponent = checkForRealOpponent();
+    
+    if (hasRealOpponent) {
+      clearInterval(queueTimeout);
+      matchFoundReal();
+      return;
+    }
+    
+    if (remainingTime <= 0) {
+      clearInterval(queueTimeout);
+      matchFoundAI();
+    }
+  }, 1000);
+}
+
+function checkForRealOpponent() {
+  // Simulate checking for real opponents
+  // In a real implementation, this would check a shared queue
+  // For demo: 20% chance of finding opponent in first 10 seconds
+  const elapsed = Math.floor((Date.now() - queueStartTime) / 1000);
+  if (elapsed < 10) {
+    return Math.random() < 0.02; // 2% chance per second
+  }
+  return false;
+}
+
+function matchFoundReal() {
+  // Simulate matching with real opponent
+  const opponent = samplePlayers[Math.floor(Math.random() * samplePlayers.length)];
+  gameState.opponentType = 'Real';
+  gameState.opponentName = opponent.username;
+  gameState.opponentLink = opponent.link;
+  
+  document.getElementById('matchType').textContent = 'Real Opponent!';
+  document.getElementById('matchType').style.color = 'var(--neon-green)';
+  
+  // Show match found message
+  document.getElementById('queueCountdown').textContent = '✓';
+  document.querySelector('.searching-animation h3').textContent = `Matched with ${opponent.username}!`;
+  
+  setTimeout(() => {
+    showMatchFound();
+  }, 2000);
+}
+
+function matchFoundAI() {
+  // Fallback to AI opponent
+  const aiNames = ['CyberBot', 'PixelWarrior', 'NeonGhost', 'QuantumPlayer', 'VoidRunner'];
+  const aiName = aiNames[Math.floor(Math.random() * aiNames.length)];
+  
+  gameState.opponentType = 'AI';
+  gameState.opponentName = aiName;
+  gameState.opponentLink = 'https://example.com/ai-opponent';
+  
+  document.getElementById('matchType').textContent = 'AI Opponent';
+  document.getElementById('matchType').style.color = 'var(--neon-orange)';
+  
+  // Show AI match message
+  document.getElementById('queueCountdown').textContent = 'AI';
+  document.querySelector('.searching-animation h3').textContent = 'Playing vs AI Opponent (system generated)';
+  
+  setTimeout(() => {
+    showMatchFound();
+  }, 2000);
+}
+
+function cancelMatchmaking() {
+  if (queueTimeout) {
+    clearInterval(queueTimeout);
+  }
+  // Remove from queue
+  matchmakingQueue = matchmakingQueue.filter(p => p.username !== gameState.username);
+  showLandingPage();
 }
 
 function updatePlayersList() {
@@ -202,7 +314,7 @@ function simulateMatchmaking() {
 }
 
 function cancelQueue() {
-  showLandingPage();
+  cancelMatchmaking();
 }
 
 // Match Found
@@ -221,6 +333,81 @@ function showMatchFound() {
       startGame();
     }
   }, 1000);
+}
+
+// ===========================
+// SPRITE & ASSET LOADING
+// ===========================
+
+const ASSETS = {
+  player: {
+    idle: null,
+    attack: null
+  },
+  enemies: {
+    chaser: null,
+    ranged: null,
+    speedy: null,
+    tank: null,
+    bomber: null,
+    teleporter: null,
+    mega_tank: null,
+    portal_lord: null,
+    spell_master: null
+  },
+  background: null,
+  coverArt: null,
+  loaded: false,
+  totalAssets: 0,
+  loadedAssets: 0
+};
+
+function loadAssets(callback) {
+  const assetList = [
+    { key: 'player.idle', src: 'idle.jpg' },
+    { key: 'player.attack', src: 'attack.jpg' },
+    { key: 'enemies.chaser', src: 'Chaser.jpg' },
+    { key: 'enemies.ranged', src: 'Ranged.jpg' },
+    { key: 'enemies.speedy', src: 'Speedy.jpg' },
+    { key: 'enemies.tank', src: 'Tank.jpg' },
+    { key: 'enemies.bomber', src: 'Bomber.jpg' },
+    { key: 'enemies.teleporter', src: 'Teleporter.jpg' },
+    { key: 'enemies.mega_tank', src: 'Mega-Tank.jpg' },
+    { key: 'enemies.portal_lord', src: 'Portal-Lord.jpg' },
+    { key: 'enemies.spell_master', src: 'Spell-Master.jpg' },
+    { key: 'background', src: 'Background-Pixel-art.jpg' },
+    { key: 'coverArt', src: 'test.jpg' }
+  ];
+  
+  ASSETS.totalAssets = assetList.length;
+  ASSETS.loadedAssets = 0;
+  
+  assetList.forEach(asset => {
+    const img = new Image();
+    img.onload = () => {
+      ASSETS.loadedAssets++;
+      const keys = asset.key.split('.');
+      if (keys.length === 2) {
+        ASSETS[keys[0]][keys[1]] = img;
+      } else {
+        ASSETS[keys[0]] = img;
+      }
+      
+      if (ASSETS.loadedAssets === ASSETS.totalAssets) {
+        ASSETS.loaded = true;
+        callback();
+      }
+    };
+    img.onerror = () => {
+      console.warn(`Failed to load ${asset.src}, using fallback`);
+      ASSETS.loadedAssets++;
+      if (ASSETS.loadedAssets === ASSETS.totalAssets) {
+        ASSETS.loaded = true;
+        callback();
+      }
+    };
+    img.src = asset.src;
+  });
 }
 
 // ===========================
@@ -248,9 +435,15 @@ const GAME_CONFIG = {
     radius: 15
   },
   enemies: {
-    basic: { health: 50, speed: 0.6, damage: 10, points: 10, color: '#ff3333', size: 15 },
-    fast: { health: 30, speed: 1.2, damage: 8, points: 15, color: '#aa33ff', size: 12 },
-    tank: { health: 100, speed: 0.5, damage: 15, points: 25, color: '#990000', size: 22 }
+    chaser: { health: 40, speed: 0.8, damage: 8, points: 10, color: '#ff3333', size: 15 },
+    ranged: { health: 35, speed: 0.7, damage: 6, points: 15, color: '#33ff33', size: 14 },
+    speedy: { health: 25, speed: 1.2, damage: 5, points: 12, color: '#ffff33', size: 12 },
+    tank: { health: 80, speed: 0.5, damage: 12, points: 25, color: '#9933ff', size: 22 },
+    bomber: { health: 30, speed: 0.6, damage: 15, points: 18, color: '#ff6600', size: 16 },
+    teleporter: { health: 20, speed: 1.0, damage: 4, points: 20, color: '#00ffff', size: 13 },
+    mega_tank: { health: 200, speed: 0.4, damage: 20, points: 100, color: '#663399', size: 30 },
+    portal_lord: { health: 150, speed: 0.8, damage: 10, points: 150, color: '#00ffaa', size: 26 },
+    spell_master: { health: 100, speed: 0.9, damage: 15, points: 120, color: '#0099ff', size: 24 }
   },
   wave: {
     initialEnemies: 1,
@@ -361,6 +554,17 @@ class MultiplayerBot {
     this.lastShot = 0;
     this.targetPos = new Vector2(x, y);
     this.retargetTime = Date.now() + Math.random() * 3000;
+    this.animState = 'idle';
+    this.animFrame = 0;
+    this.animTimer = 0;
+    this.attackAnimTimer = 0;
+    // Bot-specific upgrades
+    this.upgrades = {
+      projectileSpeed: 1,
+      moveSpeed: 1,
+      damage: 1,
+      active: []
+    };
   }
   
   update(players, enemies) {
@@ -373,7 +577,8 @@ class MultiplayerBot {
     }
     
     const dir = this.targetPos.subtract(this.pos).normalize();
-    this.velocity = dir.multiply(GAME_CONFIG.player.moveSpeed * 0.8);
+    const moveSpeed = GAME_CONFIG.player.moveSpeed * 0.8 * this.upgrades.moveSpeed;
+    this.velocity = dir.multiply(moveSpeed);
     this.pos = this.pos.add(this.velocity);
     
     this.pos.x = Math.max(this.size, Math.min(GAME_CONFIG.width - this.size, this.pos.x));
@@ -395,9 +600,15 @@ class MultiplayerBot {
   
   shoot() {
     this.lastShot = Date.now();
+    this.animState = 'attack';
+    this.attackAnimTimer = 20;
     const direction = new Vector2(Math.cos(this.rotation), Math.sin(this.rotation));
     const spawnPos = this.pos.add(direction.multiply(this.size));
-    return new Projectile(spawnPos.x, spawnPos.y, direction, GAME_CONFIG.player.projectileSpeed, 'bot');
+    const projectile = new Projectile(spawnPos.x, spawnPos.y, direction, GAME_CONFIG.player.projectileSpeed, 'bot');
+    // Apply bot upgrades
+    projectile.speed *= this.upgrades.projectileSpeed;
+    projectile.damage *= this.upgrades.damage;
+    return projectile;
   }
   
   takeDamage(amount) {
@@ -409,28 +620,68 @@ class MultiplayerBot {
   }
   
   draw(ctx) {
-    ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-    ctx.rotate(this.rotation);
+    // Update animation
+    if (this.attackAnimTimer > 0) {
+      this.attackAnimTimer--;
+      if (this.attackAnimTimer === 0) {
+        this.animState = 'idle';
+      }
+    }
     
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = this.color;
+    this.animTimer++;
+    if (this.animTimer > 15) {
+      this.animFrame = (this.animFrame + 1) % 2;
+      this.animTimer = 0;
+    }
     
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.moveTo(this.size, 0);
-    ctx.lineTo(-this.size * 0.6, -this.size * 0.6);
-    ctx.lineTo(-this.size * 0.6, this.size * 0.6);
-    ctx.closePath();
-    ctx.fill();
+    const sprite = this.animState === 'attack' ? ASSETS.player.attack : ASSETS.player.idle;
     
-    ctx.restore();
-    ctx.shadowBlur = 0;
+    if (sprite && ASSETS.loaded) {
+      ctx.save();
+      ctx.translate(this.pos.x, this.pos.y);
+      ctx.rotate(this.rotation);
+      
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = this.color;
+      
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = this.color;
+      const spriteSize = this.size * 3;
+      ctx.fillRect(-spriteSize / 2, -spriteSize / 2, spriteSize, spriteSize);
+      ctx.globalCompositeOperation = 'source-over';
+      
+      ctx.drawImage(
+        sprite,
+        -spriteSize / 2,
+        -spriteSize / 2,
+        spriteSize,
+        spriteSize
+      );
+      
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    } else {
+      // Fallback
+      ctx.save();
+      ctx.translate(this.pos.x, this.pos.y);
+      ctx.rotate(this.rotation);
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = this.color;
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.moveTo(this.size, 0);
+      ctx.lineTo(-this.size * 0.6, -this.size * 0.6);
+      ctx.lineTo(-this.size * 0.6, this.size * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    }
     
     ctx.fillStyle = this.color;
     ctx.font = 'bold 11px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(this.name, this.pos.x, this.pos.y - this.size - 15);
+    ctx.fillText(this.name, this.pos.x, this.pos.y - this.size - 25);
     
     if (this.health < this.maxHealth) {
       const barWidth = this.size * 2;
@@ -438,10 +689,10 @@ class MultiplayerBot {
       const healthPercent = this.health / this.maxHealth;
       
       ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 10, barWidth, barHeight);
+      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 20, barWidth, barHeight);
       
       ctx.fillStyle = '#00ff00';
-      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 10, barWidth * healthPercent, barHeight);
+      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 20, barWidth * healthPercent, barHeight);
     }
   }
 }
@@ -484,15 +735,35 @@ class Projectile {
     this.life = 120; // 2 seconds at 60fps
     this.owner = owner;
     this.throughPortal = false;
+    this.pierceCount = 0;
+    this.pierceHits = 0;
+    this.bounceCount = 0;
+    this.bounces = 0;
   }
   
   update() {
     this.pos = this.pos.add(this.direction.multiply(this.speed));
     this.life--;
     
-    if (this.life <= 0 || 
-        this.pos.x < 0 || this.pos.x > GAME_CONFIG.width ||
-        this.pos.y < 0 || this.pos.y > GAME_CONFIG.height) {
+    if (this.life <= 0) {
+      this.alive = false;
+      return;
+    }
+    
+    // Bounce mechanics
+    if (this.bounceCount > this.bounces) {
+      if (this.pos.x < 0 || this.pos.x > GAME_CONFIG.width) {
+        this.direction.x *= -1;
+        this.bounces++;
+        this.pos.x = Math.max(0, Math.min(GAME_CONFIG.width, this.pos.x));
+      }
+      if (this.pos.y < 0 || this.pos.y > GAME_CONFIG.height) {
+        this.direction.y *= -1;
+        this.bounces++;
+        this.pos.y = Math.max(0, Math.min(GAME_CONFIG.height, this.pos.y));
+      }
+    } else if (this.pos.x < 0 || this.pos.x > GAME_CONFIG.width ||
+               this.pos.y < 0 || this.pos.y > GAME_CONFIG.height) {
       this.alive = false;
     }
   }
@@ -526,10 +797,16 @@ class Portal {
     this.radius = 20;
     this.rotation = 0;
     this.alive = true;
+    this.duration = 30000;
+    this.createdAt = Date.now();
   }
   
   update() {
     this.rotation += 0.05;
+    // Check if portal has expired
+    if (Date.now() - this.createdAt > this.duration) {
+      this.alive = false;
+    }
   }
   
   draw(ctx) {
@@ -590,15 +867,60 @@ class Enemy {
     this.size = config.size;
     this.alive = true;
     this.hitFlash = 0;
+    this.spriteKey = type;
+    this.animFrame = 0;
+    this.animTimer = 0;
+    this.lastShot = 0;
+    this.lastTeleport = 0;
+    this.shootCooldown = 3000;
+    this.teleportCooldown = 5000;
   }
   
   update(target) {
-    const direction = target.subtract(this.pos).normalize();
-    this.pos = this.pos.add(direction.multiply(this.speed));
+    // Special behavior for ranged enemies
+    if (this.type === 'ranged' || this.type === 'spell_master') {
+      const dist = this.pos.distance(target);
+      if (dist > 150) {
+        const direction = target.subtract(this.pos).normalize();
+        this.pos = this.pos.add(direction.multiply(this.speed));
+      } else if (dist < 100) {
+        const direction = target.subtract(this.pos).normalize();
+        this.pos = this.pos.add(direction.multiply(-this.speed * 0.5));
+      }
+    } else if (this.type === 'teleporter' || this.type === 'portal_lord') {
+      const dist = this.pos.distance(target);
+      if (dist < 100 && Date.now() - this.lastTeleport > this.teleportCooldown) {
+        this.teleport();
+      } else {
+        const direction = target.subtract(this.pos).normalize();
+        this.pos = this.pos.add(direction.multiply(this.speed));
+      }
+    } else {
+      // Default chase behavior
+      const direction = target.subtract(this.pos).normalize();
+      this.pos = this.pos.add(direction.multiply(this.speed));
+    }
     
     if (this.hitFlash > 0) {
       this.hitFlash--;
     }
+  }
+  
+  teleport() {
+    this.lastTeleport = Date.now();
+    this.pos.x = Math.random() * (GAME_CONFIG.width - 100) + 50;
+    this.pos.y = Math.random() * (GAME_CONFIG.height - 100) + 50;
+  }
+  
+  canShoot() {
+    return (this.type === 'ranged' || this.type === 'spell_master') && 
+           Date.now() - this.lastShot > this.shootCooldown;
+  }
+  
+  shoot(target) {
+    this.lastShot = Date.now();
+    const direction = target.subtract(this.pos).normalize();
+    return new Projectile(this.pos.x, this.pos.y, direction, 3, 'enemy');
   }
   
   takeDamage(amount) {
@@ -612,22 +934,48 @@ class Enemy {
   }
   
   draw(ctx) {
-    const flashColor = this.hitFlash > 0 ? '#ffffff' : this.color;
+    this.animTimer++;
+    if (this.animTimer > 10) {
+      this.animFrame = (this.animFrame + 1) % 2;
+      this.animTimer = 0;
+    }
     
-    ctx.fillStyle = flashColor;
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = this.color;
+    const sprite = ASSETS.enemies[this.spriteKey];
     
-    // Draw triangle enemy
-    ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-    ctx.beginPath();
-    ctx.moveTo(0, -this.size);
-    ctx.lineTo(-this.size * 0.8, this.size * 0.6);
-    ctx.lineTo(this.size * 0.8, this.size * 0.6);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+    if (sprite && ASSETS.loaded) {
+      ctx.save();
+      
+      if (this.hitFlash > 0) {
+        ctx.globalAlpha = 0.5 + Math.sin(this.hitFlash * 0.5) * 0.5;
+      }
+      
+      const spriteSize = this.size * 2.5;
+      ctx.drawImage(
+        sprite,
+        this.pos.x - spriteSize / 2,
+        this.pos.y - spriteSize / 2,
+        spriteSize,
+        spriteSize
+      );
+      
+      ctx.restore();
+    } else {
+      // Fallback to triangle
+      const flashColor = this.hitFlash > 0 ? '#ffffff' : this.color;
+      ctx.fillStyle = flashColor;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = this.color;
+      ctx.save();
+      ctx.translate(this.pos.x, this.pos.y);
+      ctx.beginPath();
+      ctx.moveTo(0, -this.size);
+      ctx.lineTo(-this.size * 0.8, this.size * 0.6);
+      ctx.lineTo(this.size * 0.8, this.size * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    }
     
     // Health bar
     if (this.health < this.maxHealth) {
@@ -636,13 +984,11 @@ class Enemy {
       const healthPercent = this.health / this.maxHealth;
       
       ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 10, barWidth, barHeight);
+      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 15, barWidth, barHeight);
       
       ctx.fillStyle = '#00ff00';
-      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 10, barWidth * healthPercent, barHeight);
+      ctx.fillRect(this.pos.x - barWidth / 2, this.pos.y - this.size - 15, barWidth * healthPercent, barHeight);
     }
-    
-    ctx.shadowBlur = 0;
   }
 }
 
@@ -657,6 +1003,10 @@ class Player {
     this.lastShot = 0;
     this.lastPortal = 0;
     this.alive = true;
+    this.animState = 'idle';
+    this.animFrame = 0;
+    this.animTimer = 0;
+    this.attackAnimTimer = 0;
   }
   
   update(input, mousePos) {
@@ -686,15 +1036,20 @@ class Player {
   }
   
   canShoot() {
-    return Date.now() - this.lastShot >= GAME_CONFIG.player.shootCooldown;
+    const cooldown = GAME_CONFIG.player.shootCooldown * playerUpgrades.stats.shootCooldown;
+    return Date.now() - this.lastShot >= cooldown;
   }
   
   canPlacePortal() {
+    const maxPortals = Math.min(playerUpgrades.stats.maxPortals, 4); // Cap at 4
+    const currentPortals = (this.portals && this.portals.entry ? 1 : 0) + (this.portals && this.portals.exit ? 1 : 0);
     return Date.now() - this.lastPortal >= GAME_CONFIG.player.portalCooldown;
   }
   
   shoot() {
     this.lastShot = Date.now();
+    this.animState = 'attack';
+    this.attackAnimTimer = 20;
     const direction = new Vector2(Math.cos(this.rotation), Math.sin(this.rotation));
     const spawnPos = this.pos.add(direction.multiply(this.size));
     return new Projectile(spawnPos.x, spawnPos.y, direction, GAME_CONFIG.player.projectileSpeed);
@@ -702,7 +1057,11 @@ class Player {
   
   placePortal(x, y, type) {
     this.lastPortal = Date.now();
-    return new Portal(x, y, type);
+    const portal = new Portal(x, y, type);
+    // Apply portal duration upgrade
+    portal.duration = 30000 + (playerUpgrades.stats.portalDuration * 1000); // Base 30s + upgrades
+    portal.createdAt = Date.now();
+    return portal;
   }
   
   takeDamage(amount) {
@@ -714,25 +1073,58 @@ class Player {
   }
   
   draw(ctx) {
-    ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-    ctx.rotate(this.rotation);
+    // Update animation
+    if (this.attackAnimTimer > 0) {
+      this.attackAnimTimer--;
+      if (this.attackAnimTimer === 0) {
+        this.animState = 'idle';
+      }
+    }
     
-    // Glow effect
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = GAME_CONFIG.colors.player;
+    this.animTimer++;
+    if (this.animTimer > 15) {
+      this.animFrame = (this.animFrame + 1) % 2;
+      this.animTimer = 0;
+    }
     
-    // Player triangle
-    ctx.fillStyle = GAME_CONFIG.colors.player;
-    ctx.beginPath();
-    ctx.moveTo(this.size, 0);
-    ctx.lineTo(-this.size * 0.6, -this.size * 0.6);
-    ctx.lineTo(-this.size * 0.6, this.size * 0.6);
-    ctx.closePath();
-    ctx.fill();
+    const sprite = this.animState === 'attack' ? ASSETS.player.attack : ASSETS.player.idle;
     
-    ctx.restore();
-    ctx.shadowBlur = 0;
+    if (sprite && ASSETS.loaded) {
+      ctx.save();
+      ctx.translate(this.pos.x, this.pos.y);
+      ctx.rotate(this.rotation);
+      
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = GAME_CONFIG.colors.player;
+      
+      const spriteSize = this.size * 3;
+      ctx.drawImage(
+        sprite,
+        -spriteSize / 2,
+        -spriteSize / 2,
+        spriteSize,
+        spriteSize
+      );
+      
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    } else {
+      // Fallback to triangle
+      ctx.save();
+      ctx.translate(this.pos.x, this.pos.y);
+      ctx.rotate(this.rotation);
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = GAME_CONFIG.colors.player;
+      ctx.fillStyle = GAME_CONFIG.colors.player;
+      ctx.beginPath();
+      ctx.moveTo(this.size, 0);
+      ctx.lineTo(-this.size * 0.6, -this.size * 0.6);
+      ctx.lineTo(-this.size * 0.6, this.size * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    }
   }
 }
 
@@ -767,6 +1159,8 @@ class PortalShooterGame {
     this.damageTaken = 0;
     this.killFeedItems = [];
     this.chatMessages = [];
+    this.waveTransition = false;
+    this.waveAnnouncementTime = 0;
     
     this.input = {};
     this.mousePos = new Vector2(GAME_CONFIG.width / 2, GAME_CONFIG.height / 2);
@@ -778,6 +1172,7 @@ class PortalShooterGame {
     this.setupMultiplayer();
     this.setupQuickChat();
     this.setupChallenges();
+    this.setupUpgradesUI();
     this.spawnWave();
   }
   
@@ -808,6 +1203,11 @@ class PortalShooterGame {
       btn.onclick = () => this.sendQuickChat(msg);
       quickChatDiv.appendChild(btn);
     });
+  }
+  
+  showWaveAnnouncement() {
+    this.waveAnnouncementTime = Date.now() + 3000;
+    this.addChatMessage('System', `Wave ${this.wave} incoming!`, '#ffaa00');
   }
   
   setupChallenges() {
@@ -923,7 +1323,14 @@ class PortalShooterGame {
       }
       
       if (e.key === 'h' || e.key === 'H') {
-        document.getElementById('controlsHelp').classList.toggle('show');
+        const tutorialOverlay = document.getElementById('tutorialOverlay');
+        if (tutorialOverlay.style.display === 'flex') {
+          // Close tutorial if open
+          closeTutorial();
+        } else {
+          // Show tutorial
+          showTutorialWithAnyInput();
+        }
       }
       
       if (e.key === 'Escape') {
@@ -975,18 +1382,40 @@ class PortalShooterGame {
   
   placePortal() {
     const rect = this.canvas.getBoundingClientRect();
+    const maxPortals = 2;
     
-    if (!this.portals.entry) {
-      this.portals.entry = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'entry');
-      this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalEntry);
-    } else if (!this.portals.exit) {
-      this.portals.exit = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'exit');
-      this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalExit);
+    // For 2 portals (default)
+    if (maxPortals === 2) {
+      if (!this.portals.entry) {
+        this.portals.entry = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'entry');
+        this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalEntry);
+      } else if (!this.portals.exit) {
+        this.portals.exit = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'exit');
+        this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalExit);
+      } else {
+        // Replace entry portal
+        this.portals.entry = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'entry');
+        this.portals.exit = null;
+        this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalEntry);
+      }
     } else {
-      // Replace entry portal
-      this.portals.entry = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'entry');
-      this.portals.exit = null;
-      this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalEntry);
+      // For 3+ portals, cycle through entry->exit->replace oldest
+      if (!this.portals.entry) {
+        this.portals.entry = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'entry');
+        this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalEntry);
+      } else if (!this.portals.exit) {
+        this.portals.exit = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'exit');
+        this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalExit);
+      } else {
+        // Replace the older portal
+        if (this.portals.entry.createdAt < this.portals.exit.createdAt) {
+          this.portals.entry = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'entry');
+          this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalEntry);
+        } else {
+          this.portals.exit = this.player.placePortal(this.mousePos.x, this.mousePos.y, 'exit');
+          this.createPortalParticles(this.mousePos, GAME_CONFIG.colors.portalExit);
+        }
+      }
     }
     
     this.updateChallengeProgress('portals_15');
@@ -1137,7 +1566,8 @@ class PortalShooterGame {
       GAME_CONFIG.wave.maxEnemies
     );
     
-    const types = ['basic', 'fast', 'tank'];
+    const types = ['chaser', 'ranged', 'speedy', 'tank', 'bomber', 'teleporter'];
+    const bossTypes = ['mega_tank', 'portal_lord', 'spell_master'];
     
     for (let i = 0; i < enemyCount; i++) {
       setTimeout(() => {
@@ -1151,8 +1581,22 @@ class PortalShooterGame {
           case 3: x = -20; y = Math.random() * GAME_CONFIG.height; break;
         }
         
-        const typeIndex = this.wave > 3 ? Math.floor(Math.random() * 3) : (this.wave > 1 ? Math.floor(Math.random() * 2) : 0);
-        const type = types[typeIndex];
+        let type;
+        if (this.wave >= 5 && i === 0 && Math.random() < 0.3) {
+          type = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+        } else if (this.wave === 1) {
+          type = 'chaser';
+        } else if (this.wave === 2) {
+          type = i % 2 === 0 ? 'chaser' : 'ranged';
+        } else if (this.wave === 3) {
+          type = i < 2 ? 'chaser' : 'ranged';
+        } else if (this.wave === 4) {
+          const wave4Types = ['chaser', 'speedy', 'tank'];
+          type = wave4Types[i % wave4Types.length];
+        } else {
+          const availableTypes = types.slice(0, Math.min(types.length, 2 + this.wave));
+          type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+        }
         
         this.enemies.push(new Enemy(x, y, type));
       }, i * 500);
@@ -1174,12 +1618,42 @@ class PortalShooterGame {
     for (let proj of this.projectiles) {
       if (!proj.alive) continue;
       
+      // Enemy projectiles hit player/bots
+      if (proj.owner === 'enemy') {
+        const dist = proj.pos.distance(this.player.pos);
+        if (dist < proj.radius + this.player.size) {
+          proj.alive = false;
+          if (!this.activePowerUp || this.activePowerUp !== 'Shield') {
+            this.player.takeDamage(proj.damage);
+            this.damageTaken += proj.damage;
+            this.currentKillstreak = 0;
+          }
+        }
+        
+        for (let bot of this.bots) {
+          if (!bot.alive) continue;
+          const botDist = proj.pos.distance(bot.pos);
+          if (botDist < proj.radius + bot.size) {
+            proj.alive = false;
+            bot.takeDamage(proj.damage);
+          }
+        }
+        continue;
+      }
+      
       for (let enemy of this.enemies) {
         if (!enemy.alive) continue;
         
         const dist = proj.pos.distance(enemy.pos);
         if (dist < proj.radius + enemy.size) {
-          proj.alive = false;
+          // Pierce mechanic - don't destroy projectile if it can still pierce
+          const canPierce = proj.pierceCount > proj.pierceHits;
+          if (!canPierce) {
+            proj.alive = false;
+          } else {
+            proj.pierceHits++;
+          }
+          
           const isPlayerShot = proj.owner === 'player';
           
           if (isPlayerShot) {
@@ -1296,12 +1770,15 @@ class PortalShooterGame {
       this.lastPowerUpSpawn = Date.now();
     }
     
-    // Update player
+    // Update player with power-up boost
     let moveSpeed = GAME_CONFIG.player.moveSpeed;
     if (this.activePowerUp === 'Speed Boost') {
       moveSpeed *= 2;
     }
+    const originalSpeed = GAME_CONFIG.player.moveSpeed;
+    GAME_CONFIG.player.moveSpeed = moveSpeed;
     this.player.update(this.input, this.mousePos);
+    GAME_CONFIG.player.moveSpeed = originalSpeed;
     
     // Update bots
     for (let bot of this.bots) {
@@ -1320,6 +1797,14 @@ class PortalShooterGame {
         const target = Math.random() < 0.5 ? this.player.pos : 
           (this.bots.length > 0 ? this.bots[Math.floor(Math.random() * this.bots.length)].pos : this.player.pos);
         enemy.update(target);
+        
+        // Ranged enemies shoot
+        if (enemy.canShoot() && Math.random() < 0.02) {
+          const dist = enemy.pos.distance(target);
+          if (dist < 300 && dist > 100) {
+            this.projectiles.push(enemy.shoot(target));
+          }
+        }
       }
     }
     
@@ -1338,8 +1823,18 @@ class PortalShooterGame {
     }
     
     // Update portals
-    if (this.portals.entry) this.portals.entry.update();
-    if (this.portals.exit) this.portals.exit.update();
+    if (this.portals.entry) {
+      this.portals.entry.update();
+      if (!this.portals.entry.alive) {
+        this.portals.entry = null;
+      }
+    }
+    if (this.portals.exit) {
+      this.portals.exit.update();
+      if (!this.portals.exit.alive) {
+        this.portals.exit = null;
+      }
+    }
     
     // Update particles
     for (let particle of this.particles) {
@@ -1359,11 +1854,17 @@ class PortalShooterGame {
     this.checkPowerUpExpiry();
     
     // Check for wave completion
-    if (this.enemies.length === 0) {
+    if (this.enemies.length === 0 && !this.waveTransition) {
+      this.waveTransition = true;
       this.wave++;
       this.score += 50;
       this.addXP(25);
-      setTimeout(() => this.spawnWave(), GAME_CONFIG.wave.waveDelay);
+      this.showWaveAnnouncement();
+      
+      setTimeout(() => {
+        this.waveTransition = false;
+        this.spawnWave();
+      }, 3000);
     }
     
     // Update bot scores
@@ -1394,9 +1895,11 @@ class PortalShooterGame {
     
     document.getElementById('scoreDisplay').textContent = this.score;
     document.getElementById('killsDisplay').textContent = this.kills;
+    document.getElementById('waveDisplay').textContent = this.wave;
     
+    const maxPortals = 2;
     const portalCount = (this.portals.entry ? 1 : 0) + (this.portals.exit ? 1 : 0);
-    document.getElementById('portalsDisplay').textContent = `${2 - portalCount}/2`;
+    document.getElementById('portalsDisplay').textContent = `${maxPortals - portalCount}/${maxPortals}`;
     
     const minutes = Math.floor(this.gameTime / 60);
     const seconds = this.gameTime % 60;
@@ -1464,32 +1967,37 @@ class PortalShooterGame {
   }
   
   draw() {
-    // Clear canvas
-    this.ctx.fillStyle = GAME_CONFIG.colors.background;
-    this.ctx.fillRect(0, 0, GAME_CONFIG.width, GAME_CONFIG.height);
-    
-    // Draw star background
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    for (let i = 0; i < 100; i++) {
-      const x = (i * 117) % GAME_CONFIG.width;
-      const y = (i * 239) % GAME_CONFIG.height;
-      this.ctx.fillRect(x, y, 1, 1);
-    }
-    
-    // Draw grid
-    this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.05)';
-    this.ctx.lineWidth = 1;
-    for (let x = 0; x < GAME_CONFIG.width; x += 50) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, GAME_CONFIG.height);
-      this.ctx.stroke();
-    }
-    for (let y = 0; y < GAME_CONFIG.height; y += 50) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(GAME_CONFIG.width, y);
-      this.ctx.stroke();
+    // Draw background
+    if (ASSETS.background && ASSETS.loaded) {
+      this.ctx.drawImage(ASSETS.background, 0, 0, GAME_CONFIG.width, GAME_CONFIG.height);
+    } else {
+      // Fallback background
+      this.ctx.fillStyle = GAME_CONFIG.colors.background;
+      this.ctx.fillRect(0, 0, GAME_CONFIG.width, GAME_CONFIG.height);
+      
+      // Draw star background
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      for (let i = 0; i < 100; i++) {
+        const x = (i * 117) % GAME_CONFIG.width;
+        const y = (i * 239) % GAME_CONFIG.height;
+        this.ctx.fillRect(x, y, 1, 1);
+      }
+      
+      // Draw grid
+      this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.05)';
+      this.ctx.lineWidth = 1;
+      for (let x = 0; x < GAME_CONFIG.width; x += 50) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, 0);
+        this.ctx.lineTo(x, GAME_CONFIG.height);
+        this.ctx.stroke();
+      }
+      for (let y = 0; y < GAME_CONFIG.height; y += 50) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, y);
+        this.ctx.lineTo(GAME_CONFIG.width, y);
+        this.ctx.stroke();
+      }
     }
     
     // Draw power-ups
@@ -1530,6 +2038,20 @@ class PortalShooterGame {
       this.ctx.font = 'bold 11px Arial';
       this.ctx.textAlign = 'center';
       this.ctx.fillText(gameState.username, this.player.pos.x, this.player.pos.y - this.player.size - 15);
+    }
+    
+    // Draw wave announcement
+    if (this.waveAnnouncementTime > Date.now()) {
+      const alpha = Math.min(1, (this.waveAnnouncementTime - Date.now()) / 1000);
+      this.ctx.globalAlpha = alpha;
+      this.ctx.fillStyle = '#ffaa00';
+      this.ctx.font = 'bold 48px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.shadowBlur = 20;
+      this.ctx.shadowColor = '#ffaa00';
+      this.ctx.fillText(`WAVE ${this.wave}`, GAME_CONFIG.width / 2, GAME_CONFIG.height / 2);
+      this.ctx.shadowBlur = 0;
+      this.ctx.globalAlpha = 1;
     }
     
     // Draw paused overlay
@@ -1599,10 +2121,11 @@ class PortalShooterGame {
     
     document.getElementById('gameOverScreen').style.display = 'flex';
     
-    // Create final player standings
+    // Create final player standings (player vs opponent)
+    const opponentScore = Math.floor(this.score * (0.7 + Math.random() * 0.5)); // AI score is 70-120% of player's
     const allPlayers = [
       { username: gameState.username, link: gameState.link, score: this.score },
-      ...this.bots.map(bot => ({ username: bot.name, link: 'https://example.com', score: bot.score }))
+      { username: gameState.opponentName, link: gameState.opponentLink, score: opponentScore }
     ];
     
     allPlayers.sort((a, b) => b.score - a.score);
@@ -1628,15 +2151,76 @@ class PortalShooterGame {
 
 let currentGame = null;
 
+function showLoadingScreen() {
+  showView('gameView');
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, GAME_CONFIG.width, GAME_CONFIG.height);
+  
+  if (ASSETS.coverArt && ASSETS.loaded) {
+    const scale = Math.min(
+      GAME_CONFIG.width / ASSETS.coverArt.width,
+      GAME_CONFIG.height / ASSETS.coverArt.height
+    ) * 0.8;
+    const w = ASSETS.coverArt.width * scale;
+    const h = ASSETS.coverArt.height * scale;
+    const x = (GAME_CONFIG.width - w) / 2;
+    const y = (GAME_CONFIG.height - h) / 2 - 50;
+    
+    ctx.drawImage(ASSETS.coverArt, x, y, w, h);
+  }
+  
+  ctx.fillStyle = '#00ffff';
+  ctx.font = 'bold 32px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText("Jeff's Portal Shooter", GAME_CONFIG.width / 2, GAME_CONFIG.height - 150);
+  
+  ctx.fillStyle = '#ffaa00';
+  ctx.font = '20px Arial';
+  ctx.fillText('Loading assets...', GAME_CONFIG.width / 2, GAME_CONFIG.height - 100);
+  
+  const loadPercent = Math.floor((ASSETS.loadedAssets / ASSETS.totalAssets) * 100);
+  ctx.fillRect(GAME_CONFIG.width / 2 - 150, GAME_CONFIG.height - 70, 300, 20);
+  ctx.fillStyle = '#00ffff';
+  ctx.fillRect(GAME_CONFIG.width / 2 - 150, GAME_CONFIG.height - 70, 300 * (loadPercent / 100), 20);
+  
+  ctx.fillStyle = 'white';
+  ctx.font = '14px Arial';
+  ctx.fillText(`${loadPercent}%`, GAME_CONFIG.width / 2, GAME_CONFIG.height - 55);
+}
+
 function startGame() {
+  if (!ASSETS.loaded) {
+    showLoadingScreen();
+    loadAssets(() => {
+      setTimeout(() => {
+        initializeGame();
+      }, 500);
+    });
+    
+    const checkLoading = setInterval(() => {
+      if (!ASSETS.loaded) {
+        showLoadingScreen();
+      } else {
+        clearInterval(checkLoading);
+      }
+    }, 100);
+  } else {
+    initializeGame();
+  }
+}
+
+function initializeGame() {
   showView('gameView');
   document.getElementById('gameOverScreen').style.display = 'none';
   
-  // Show tutorial on first game
-  const hasSeenTutorial = false; // In real app, check localStorage equivalent
-  if (!hasSeenTutorial && gameState.gamesPlayed === 0) {
+  // Show tutorial on first game only (once per session)
+  if (!sessionState.hasSeenTutorial && gameState.gamesPlayed === 0) {
     setTimeout(() => {
       showTutorial();
+      sessionState.hasSeenTutorial = true;
     }, 1000);
   }
   
@@ -1685,26 +2269,50 @@ function showWinnerAnnouncement() {
   showView('winnerView');
   
   const winner = gameState.currentWinner;
-  document.getElementById('winnerName').textContent = winner.username;
-  document.getElementById('winnerLinkDisplay').textContent = winner.link;
-  document.getElementById('winnerLinkDisplay').href = winner.link;
+  const isPlayerWinner = winner.username === gameState.username;
   
-  // Countdown to redirect
-  let countdown = 5;
-  const countdownElement = document.getElementById('redirectCountdown');
-  const progressFill = document.getElementById('progressFill');
-  progressFill.style.width = '100%';
-  
-  const redirectInterval = setInterval(() => {
-    countdown--;
-    countdownElement.textContent = countdown;
-    progressFill.style.width = `${(countdown / 5) * 100}%`;
+  if (isPlayerWinner) {
+    // Player won - show their link being promoted
+    document.getElementById('winnerIsYou').style.display = 'block';
+    document.getElementById('winnerIsOpponent').style.display = 'none';
     
-    if (countdown <= 0) {
-      clearInterval(redirectInterval);
-      showRedirect();
-    }
-  }, 1000);
+    document.getElementById('yourLinkHuge').textContent = gameState.link;
+    document.getElementById('yourLinkHuge').href = gameState.link;
+    document.getElementById('opponentNameWin').textContent = gameState.opponentName;
+    document.getElementById('yourScoreWin').textContent = winner.score || 0;
+  } else {
+    // Player lost - show winner's link HUGE
+    document.getElementById('winnerIsYou').style.display = 'none';
+    document.getElementById('winnerIsOpponent').style.display = 'block';
+    
+    document.getElementById('winnerNameLose').textContent = winner.username;
+    document.getElementById('winnerLinkHuge').textContent = winner.link;
+    document.getElementById('winnerLinkHuge').href = winner.link;
+    
+    const playerScore = gameState.currentPlayers.find(p => p.username === gameState.username)?.score || 0;
+    document.getElementById('yourScoreLose').textContent = playerScore;
+    document.getElementById('opponentScoreLose').textContent = winner.score || 0;
+    document.getElementById('opponentNameLose').textContent = winner.username;
+    
+    // Track that loser saw winner's link
+    gameState.clicksReceived++;
+  }
+}
+
+function copyYourLink() {
+  const link = gameState.link;
+  // Copy to clipboard (navigator.clipboard may not work in sandbox)
+  const textarea = document.createElement('textarea');
+  textarea.value = link;
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    alert('Link copied to clipboard!');
+  } catch (err) {
+    alert('Link: ' + link);
+  }
+  document.body.removeChild(textarea);
 }
 
 function showRedirect() {
@@ -1802,15 +2410,42 @@ function selectGameMode(mode) {
 
 function closeTutorial() {
   document.getElementById('tutorialOverlay').style.display = 'none';
-  const dontShow = document.getElementById('dontShowAgain').checked;
-  if (dontShow) {
-    // In a real app, would save this preference
-    console.log('Tutorial disabled for future sessions');
+  // Return focus to game canvas
+  const canvas = document.getElementById('gameCanvas');
+  if (canvas) {
+    canvas.focus();
   }
 }
 
+function showTutorialWithAnyInput() {
+  const tutorialOverlay = document.getElementById('tutorialOverlay');
+  tutorialOverlay.style.display = 'flex';
+  
+  // Close on any click
+  const closeOnClick = (e) => {
+    if (e.target === tutorialOverlay || e.target.closest('.btn-primary')) {
+      closeTutorial();
+      tutorialOverlay.removeEventListener('click', closeOnClick);
+      document.removeEventListener('keydown', closeOnKey);
+    }
+  };
+  
+  // Close on any key
+  const closeOnKey = (e) => {
+    if (['Enter', ' ', 'Escape', 'h', 'H'].includes(e.key) || e.key.length === 1) {
+      closeTutorial();
+      tutorialOverlay.removeEventListener('click', closeOnClick);
+      document.removeEventListener('keydown', closeOnKey);
+      e.preventDefault();
+    }
+  };
+  
+  tutorialOverlay.addEventListener('click', closeOnClick);
+  document.addEventListener('keydown', closeOnKey);
+}
+
 function showTutorial() {
-  document.getElementById('tutorialOverlay').style.display = 'flex';
+  showTutorialWithAnyInput();
 }
 
 function returnHome() {
@@ -1866,7 +2501,7 @@ function toggleChallenges() {
 
 // Initialize with welcome message
 window.addEventListener('load', () => {
-  console.log('%c🎮 Play to Promote - Enhanced Multiplayer Portal Shooter!', 'color: #00ffff; font-size: 16px; font-weight: bold;');
+  console.log('%c🎮 Play to Promote - Portal Shooter Game!', 'color: #00ffff; font-size: 16px; font-weight: bold;');
   console.log('%c✨ Features:', 'color: #ffaa00; font-size: 14px;');
   console.log('  • Real-time multiplayer with AI bots');
   console.log('  • Player progression & leveling system');
@@ -1877,4 +2512,5 @@ window.addEventListener('load', () => {
   console.log('  • Portal mechanics with teleportation');
   console.log('  • Post-game statistics & leaderboards');
   console.log('%c🚀 Ready to play!', 'color: #00ff88; font-size: 14px;');
+  console.log('%c📦 GitHub Pages Ready!', 'color: #ff00ff; font-size: 14px;');
 });
