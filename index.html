@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Play to Promote - Real Multiplayer Games</title>
+  <title>Play to Promote - Gamified Multiplayer Platform</title>
   <style>
     * {
       margin: 0;
@@ -34,6 +34,342 @@
       justify-content: center;
       text-align: center;
       padding: 40px 20px;
+    }
+
+    .login-modal {
+      background: rgba(20, 20, 40, 0.98);
+      border: 3px solid #8b5cf6;
+      border-radius: 20px;
+      padding: 48px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 0 80px rgba(139, 92, 246, 0.5);
+    }
+
+    .login-options {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 32px;
+    }
+
+    .option-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: left;
+    }
+
+    .option-card:hover {
+      border-color: #00ffff;
+      transform: translateY(-4px);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+    }
+
+    .option-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ffff;
+      margin-bottom: 8px;
+    }
+
+    .option-desc {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* Dashboard */
+    .dashboard-page {
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .dashboard-logo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #00ffff;
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(139, 92, 246, 0.2);
+      border: 2px solid #8b5cf6;
+      color: #8b5cf6;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:hover {
+      background: rgba(139, 92, 246, 0.4);
+      transform: scale(1.1);
+    }
+
+    .profile-card {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(0, 255, 255, 0.15));
+      border: 2px solid #8b5cf6;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 40px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      border: 4px solid #00ffff;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    }
+
+    .profile-username {
+      font-size: 32px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .profile-rank {
+      color: #ff00ff;
+      font-size: 18px;
+      margin-bottom: 24px;
+    }
+
+    .currency-display {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 24px;
+    }
+
+    .currency-item {
+      text-align: center;
+    }
+
+    .currency-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #ff6600;
+      display: block;
+    }
+
+    .currency-label {
+      color: #aaa;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: rgba(20, 20, 40, 0.8);
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: #00ffff;
+      transform: translateY(-4px);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #00ffff;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .achievements-section {
+      margin-bottom: 40px;
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .achievement-badge {
+      background: rgba(20, 20, 40, 0.8);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .achievement-badge.unlocked {
+      border-color: #ffd700;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .achievement-badge.locked {
+      opacity: 0.4;
+      filter: grayscale(1);
+    }
+
+    .achievement-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+
+    .achievement-name {
+      font-size: 12px;
+      color: white;
+      font-weight: bold;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    /* Leaderboard */
+    .leaderboard-page {
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .leaderboard-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .tab-btn {
+      padding: 12px 32px;
+      background: rgba(20, 20, 40, 0.8);
+      border: 2px solid rgba(139, 92, 246, 0.3);
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      background: #8b5cf6;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    }
+
+    .leaderboard-list {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .leaderboard-item {
+      background: rgba(20, 20, 40, 0.8);
+      border: 2px solid rgba(0, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: all 0.3s;
+    }
+
+    .leaderboard-item:hover {
+      border-color: #00ffff;
+      transform: translateX(4px);
+    }
+
+    .leaderboard-item.current-user {
+      border-color: #ffd700;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .leaderboard-rank {
+      font-size: 32px;
+      font-weight: bold;
+      color: #ff6600;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .leaderboard-rank.top1 { color: #ffd700; }
+    .leaderboard-rank.top2 { color: #c0c0c0; }
+    .leaderboard-rank.top3 { color: #cd7f32; }
+
+    .leaderboard-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      border: 2px solid #00ffff;
+    }
+
+    .leaderboard-info {
+      flex: 1;
+    }
+
+    .leaderboard-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .leaderboard-stats {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .leaderboard-score {
+      font-size: 24px;
+      font-weight: bold;
+      color: #00ffff;
+      text-align: right;
     }
 
     .hero-title {
@@ -496,23 +832,139 @@
       <h1 class="hero-title">🎮 Play to Promote</h1>
       <p class="hero-subtitle">Win Games. Promote Your Link. Get Real Traffic.</p>
       
-      <div class="form-card">
-        <form id="entryForm">
-          <div class="form-group">
-            <label class="form-label">Your Username</label>
-            <input type="text" id="username" class="form-input" placeholder="Enter username" minlength="3" maxlength="20" required>
+      <div class="login-modal" id="loginModal">
+        <h2 style="color: #8b5cf6; margin-bottom: 12px; font-size: 28px;">Choose Your Path</h2>
+        <p style="color: #aaa; margin-bottom: 24px;">Select how you want to play</p>
+        
+        <div class="login-options">
+          <div class="option-card" onclick="showQuickPlay()">
+            <div class="option-title">⚡ Quick Play</div>
+            <div class="option-desc">Jump in fast with random username. Temporary session.</div>
           </div>
           
+          <div class="option-card" onclick="showCreateProfile()">
+            <div class="option-title">👤 Create Profile</div>
+            <div class="option-desc">Save your progress, track stats, compete on leaderboard.</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-card hidden" id="quickPlayForm">
+        <h3 style="color: #00ffff; margin-bottom: 20px;">Quick Play</h3>
+        <form id="quickPlaySubmit">
           <div class="form-group">
             <label class="form-label">Your Promo Link</label>
-            <input type="url" id="promoLink" class="form-input" placeholder="https://your-site.com" required>
+            <input type="url" id="quickLink" class="form-input" placeholder="https://your-site.com" required>
           </div>
-          
-          <button type="submit" class="btn btn-primary" id="startBtn">Start Playing</button>
+          <button type="submit" class="btn btn-primary">Play Now</button>
+          <button type="button" class="btn btn-secondary" onclick="backToLogin()">← Back</button>
+        </form>
+      </div>
+      
+      <div class="form-card hidden" id="createProfileForm">
+        <h3 style="color: #00ffff; margin-bottom: 20px;">Create Profile</h3>
+        <form id="profileSubmit">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="profileUsername" class="form-input" placeholder="Choose username" minlength="3" maxlength="20" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your Promo Link</label>
+            <input type="url" id="profileLink" class="form-input" placeholder="https://your-site.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email (Optional)</label>
+            <input type="email" id="profileEmail" class="form-input" placeholder="your@email.com">
+          </div>
+          <button type="submit" class="btn btn-primary">Create &amp; Play</button>
+          <button type="button" class="btn btn-secondary" onclick="backToLogin()">← Back</button>
         </form>
       </div>
       
       <div id="errorDisplay" class="error-message hidden"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div id="dashboardPage" class="dashboard-page hidden">
+    <div class="container">
+      <div class="dashboard-header">
+        <div class="dashboard-logo">🎮 Play to Promote</div>
+        <div class="header-actions">
+          <button class="icon-btn" onclick="showLeaderboard()" title="Leaderboard">🏆</button>
+          <button class="icon-btn" onclick="logout()" title="Logout">🚪</button>
+        </div>
+      </div>
+      
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar" style="background: #8b5cf6;">👤</div>
+        <div class="profile-username" id="profileUsername">Player</div>
+        <div class="profile-rank" id="profileRank">Rank #--</div>
+        <div class="currency-display">
+          <div class="currency-item">
+            <span class="currency-value" id="displayCredits">0</span>
+            <span class="currency-label">💰 Credits</span>
+          </div>
+          <div class="currency-item">
+            <span class="currency-value" id="displayScore">0</span>
+            <span class="currency-label">⭐ Score</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value" id="statGames">0</span>
+          <span class="stat-label">Total Games</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statWins">0</span>
+          <span class="stat-label">Total Wins</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statStreak">0</span>
+          <span class="stat-label">Win Streak</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="statWinRate">0%</span>
+          <span class="stat-label">Win Rate</span>
+        </div>
+      </div>
+      
+      <div class="achievements-section">
+        <h2 class="section-title">🏅 Achievements</h2>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="goToLobby()">🎮 Play Now</button>
+        <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 Leaderboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Page -->
+  <div id="leaderboardPage" class="leaderboard-page hidden">
+    <div class="container">
+      <div class="lobby-header">
+        <h1 class="lobby-title">🏆 Leaderboard</h1>
+      </div>
+      
+      <div class="leaderboard-tabs">
+        <button class="tab-btn active" onclick="switchLeaderboard('score')">⭐ By Score</button>
+        <button class="tab-btn" onclick="switchLeaderboard('credits')">💰 By Credits</button>
+      </div>
+      
+      <div class="leaderboard-list" id="leaderboardList">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading leaderboard...</p>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 40px;">
+        <button class="btn btn-secondary" onclick="backToDashboard()">← Back to Dashboard</button>
+      </div>
     </div>
   </div>
 
@@ -607,44 +1059,178 @@
     let currentUser = null;
     let currentUsername = '';
     let currentLink = '';
+    let currentEmail = '';
     let currentRoomId = null;
     let roomListener = null;
+    let leaderboardListener = null;
     let gameTimer = null;
     let gameState = {};
+    let userData = {
+      score: 0,
+      credits: 0,
+      totalGames: 0,
+      totalWins: 0,
+      winStreak: 0,
+      avatar: '#8b5cf6',
+      achievements: []
+    };
 
     // Game Configurations
     const GAMES = [
-      { id: 'coinflip', name: 'Coin Flip Race', icon: '🪙', desc: 'First to guess 5 correctly wins', rounds: 5 },
-      { id: 'reaction', name: 'Reaction Battle', icon: '⚡', desc: 'Click when green - fastest wins', duration: 30 },
-      { id: 'number', name: 'Number Prediction', icon: '🔢', desc: 'Guess numbers 1-10, most correct wins', rounds: 5 }
+      { id: 'trivia', name: 'Trivia Battle', icon: '🧠', desc: 'Answer trivia questions faster than opponent', duration: 30, creditsReward: 50, pointsReward: 100 },
+      { id: 'reaction', name: 'Reaction Master', icon: '⚡', desc: 'Test your reflexes against other players', duration: 20, creditsReward: 30, pointsReward: 75 },
+      { id: 'number', name: 'Number Roulette', icon: '🎲', desc: 'Guess the number with the fewest tries', duration: 25, creditsReward: 40, pointsReward: 80 }
     ];
+
+    const TRIVIA_QUESTIONS = [
+      { question: "What is the capital of France?", options: ["London", "Berlin", "Paris", "Madrid"], correct: 2 },
+      { question: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 1 },
+      { question: "What is the largest ocean on Earth?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], correct: 3 },
+      { question: "Who painted the Mona Lisa?", options: ["Van Gogh", "Da Vinci", "Picasso", "Rembrandt"], correct: 1 },
+      { question: "What is the smallest country in the world?", options: ["Monaco", "Vatican City", "Malta", "Liechtenstein"], correct: 1 },
+      { question: "How many continents are there?", options: ["5", "6", "7", "8"], correct: 2 },
+      { question: "What is the chemical symbol for gold?", options: ["Go", "Au", "Gd", "Ag"], correct: 1 },
+      { question: "Which animal is the fastest land animal?", options: ["Lion", "Cheetah", "Gazelle", "Horse"], correct: 1 },
+      { question: "What year did World War II end?", options: ["1943", "1944", "1945", "1946"], correct: 2 },
+      { question: "How many strings does a standard guitar have?", options: ["4", "5", "6", "7"], correct: 2 }
+    ];
+
+    const ACHIEVEMENTS = [
+      { id: 'first_win', name: 'First Victory', desc: 'Win your first game', icon: '🏆', condition: (user) => user.totalWins >= 1 },
+      { id: 'ten_wins', name: 'Champion', desc: 'Win 10 games', icon: '👑', condition: (user) => user.totalWins >= 10 },
+      { id: 'hundred_credits', name: 'Credit Collector', desc: 'Earn 100 credits', icon: '💰', condition: (user) => user.credits >= 100 },
+      { id: 'undefeated', name: 'Undefeated', desc: 'Win 5 games in a row', icon: '⚡', condition: (user) => user.winStreak >= 5 },
+      { id: 'first_game', name: 'Newcomer', desc: 'Play your first game', icon: '🎮', condition: (user) => user.totalGames >= 1 },
+      { id: 'ten_games', name: 'Veteran', desc: 'Play 10 games', icon: '🎯', condition: (user) => user.totalGames >= 10 }
+    ];
+
+    // Session Management (In-Memory)
+    let sessionData = null;
+
+    function saveSession(uid, username, link, email = '') {
+      sessionData = {
+        uid,
+        username,
+        link,
+        email,
+        timestamp: Date.now()
+      };
+    }
+
+    function loadSession() {
+      return sessionData;
+    }
+
+    function clearSession() {
+      sessionData = null;
+    }
 
     // Navigation Functions
     function showPage(pageId) {
-      document.querySelectorAll('.landing-page, .lobby-page, .game-room, .winner-page').forEach(page => {
+      document.querySelectorAll('.landing-page, .dashboard-page, .lobby-page, .leaderboard-page, .game-room, .winner-page').forEach(page => {
         page.classList.add('hidden');
       });
       document.getElementById(pageId).classList.remove('hidden');
     }
 
+    window.showQuickPlay = function() {
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('quickPlayForm').classList.remove('hidden');
+    };
+
+    window.showCreateProfile = function() {
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('createProfileForm').classList.remove('hidden');
+    };
+
+    window.backToLogin = function() {
+      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('quickPlayForm').classList.add('hidden');
+      document.getElementById('createProfileForm').classList.add('hidden');
+    };
+
     window.logout = function() {
+      clearSession();
       currentUser = null;
       currentUsername = '';
       currentLink = '';
+      currentEmail = '';
+      userData = { score: 0, credits: 0, totalGames: 0, totalWins: 0, winStreak: 0, avatar: '#8b5cf6', achievements: [] };
       if (roomListener) roomListener();
+      if (leaderboardListener) leaderboardListener();
       if (gameTimer) clearInterval(gameTimer);
       showPage('landingPage');
-      document.getElementById('entryForm').reset();
+      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('quickPlayForm').classList.add('hidden');
+      document.getElementById('createProfileForm').classList.add('hidden');
     };
 
-    // Entry Form Submission
-    document.getElementById('entryForm').addEventListener('submit', async (e) => {
+    window.backToDashboard = function() {
+      if (leaderboardListener) leaderboardListener();
+      showPage('dashboardPage');
+      updateDashboard();
+    };
+
+    window.goToLobby = function() {
+      showPage('lobbyPage');
+      loadRooms();
+    };
+
+    // Quick Play Form
+    document.getElementById('quickPlaySubmit').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const link = document.getElementById('quickLink').value.trim();
+      const btn = e.target.querySelector('.btn-primary');
       
-      const username = document.getElementById('username').value.trim();
-      const link = document.getElementById('promoLink').value.trim();
-      const startBtn = document.getElementById('startBtn');
-      const errorDisplay = document.getElementById('errorDisplay');
+      if (!link.startsWith('http')) {
+        showError('Please enter a valid URL starting with http:// or https://');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Connecting...';
+      document.getElementById('errorDisplay').classList.add('hidden');
+      
+      try {
+        const userCredential = await signInAnonymously(auth);
+        currentUser = userCredential.user;
+        currentUsername = 'Player' + Math.floor(Math.random() * 10000);
+        currentLink = link;
+        
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          username: currentUsername,
+          link: link,
+          score: 0,
+          credits: 0,
+          totalGames: 0,
+          totalWins: 0,
+          winStreak: 0,
+          avatar: '#8b5cf6',
+          achievements: [],
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp()
+        });
+        
+        saveSession(currentUser.uid, currentUsername, link);
+        await loadUserData();
+        showPage('dashboardPage');
+        updateDashboard();
+        
+      } catch (error) {
+        console.error('Quick play error:', error);
+        showError('Connection failed: ' + error.message);
+        btn.disabled = false;
+        btn.textContent = 'Play Now';
+      }
+    });
+
+    // Create Profile Form
+    document.getElementById('profileSubmit').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('profileUsername').value.trim();
+      const link = document.getElementById('profileLink').value.trim();
+      const email = document.getElementById('profileEmail').value.trim();
+      const btn = e.target.querySelector('.btn-primary');
       
       if (username.length < 3) {
         showError('Username must be at least 3 characters');
@@ -656,37 +1242,49 @@
         return;
       }
       
-      startBtn.disabled = true;
-      startBtn.textContent = 'Connecting...';
-      errorDisplay.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Creating...';
+      document.getElementById('errorDisplay').classList.add('hidden');
       
       try {
-        // Sign in anonymously
         const userCredential = await signInAnonymously(auth);
         currentUser = userCredential.user;
         currentUsername = username;
         currentLink = link;
+        currentEmail = email;
         
-        // Create/update user document
+        const colors = ['#8b5cf6', '#00ffff', '#ff6600', '#ff00ff', '#00ff88', '#ffd700'];
+        const avatar = colors[Math.floor(Math.random() * colors.length)];
+        
         await setDoc(doc(db, 'users', currentUser.uid), {
           username: username,
           link: link,
-          createdAt: serverTimestamp()
+          email: email,
+          score: 5,
+          credits: 5,
+          totalGames: 0,
+          totalWins: 0,
+          winStreak: 0,
+          avatar: avatar,
+          profile: {
+            bio: '',
+            joinedDate: serverTimestamp()
+          },
+          achievements: [],
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp()
         });
         
-        // Show lobby
-        document.getElementById('displayUsername').textContent = username;
-        document.getElementById('displayLink').textContent = link;
-        document.getElementById('displayLink').href = link;
-        
-        showPage('lobbyPage');
-        loadRooms();
+        saveSession(currentUser.uid, username, link, email);
+        await loadUserData();
+        showPage('dashboardPage');
+        updateDashboard();
         
       } catch (error) {
-        console.error('Auth error:', error);
-        showError('Connection failed: ' + error.message);
-        startBtn.disabled = false;
-        startBtn.textContent = 'Start Playing';
+        console.error('Create profile error:', error);
+        showError('Failed to create profile: ' + error.message);
+        btn.disabled = false;
+        btn.textContent = 'Create & Play';
       }
     });
 
@@ -694,6 +1292,97 @@
       const errorDisplay = document.getElementById('errorDisplay');
       errorDisplay.textContent = '⚠️ ' + message;
       errorDisplay.classList.remove('hidden');
+    }
+
+    // Load User Data
+    async function loadUserData() {
+      if (!currentUser) return;
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          userData = {
+            score: data.score || 0,
+            credits: data.credits || 0,
+            totalGames: data.totalGames || 0,
+            totalWins: data.totalWins || 0,
+            winStreak: data.winStreak || 0,
+            avatar: data.avatar || '#8b5cf6',
+            achievements: data.achievements || []
+          };
+          currentUsername = data.username;
+          currentLink = data.link;
+          currentEmail = data.email || '';
+          
+          // Update last login
+          await updateDoc(doc(db, 'users', currentUser.uid), {
+            lastLogin: serverTimestamp()
+          });
+        }
+      } catch (error) {
+        console.error('Load user data error:', error);
+      }
+    }
+
+    // Update Dashboard
+    function updateDashboard() {
+      document.getElementById('profileAvatar').style.background = userData.avatar;
+      document.getElementById('profileUsername').textContent = currentUsername;
+      document.getElementById('displayCredits').textContent = userData.credits;
+      document.getElementById('displayScore').textContent = userData.score;
+      document.getElementById('statGames').textContent = userData.totalGames;
+      document.getElementById('statWins').textContent = userData.totalWins;
+      document.getElementById('statStreak').textContent = userData.winStreak;
+      
+      const winRate = userData.totalGames > 0 ? Math.round((userData.totalWins / userData.totalGames) * 100) : 0;
+      document.getElementById('statWinRate').textContent = winRate + '%';
+      
+      // Update achievements
+      const achievementsGrid = document.getElementById('achievementsGrid');
+      achievementsGrid.innerHTML = '';
+      
+      ACHIEVEMENTS.forEach(achievement => {
+        const unlocked = achievement.condition(userData);
+        const badge = document.createElement('div');
+        badge.className = 'achievement-badge ' + (unlocked ? 'unlocked' : 'locked');
+        badge.innerHTML = `
+          <div class="achievement-icon">${achievement.icon}</div>
+          <div class="achievement-name">${achievement.name}</div>
+        `;
+        badge.title = achievement.desc;
+        achievementsGrid.appendChild(badge);
+        
+        // Check if newly unlocked
+        if (unlocked && !userData.achievements.includes(achievement.id)) {
+          userData.achievements.push(achievement.id);
+          updateDoc(doc(db, 'users', currentUser.uid), {
+            achievements: userData.achievements
+          }).catch(e => console.error('Achievement update error:', e));
+        }
+      });
+      
+      // Get rank
+      getRank();
+    }
+
+    async function getRank() {
+      try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, orderBy('score', 'desc'), limit(100));
+        const snapshot = await getDocs(q);
+        
+        let rank = 0;
+        snapshot.forEach((doc, index) => {
+          if (doc.id === currentUser.uid) {
+            rank = index + 1;
+          }
+        });
+        
+        document.getElementById('profileRank').textContent = rank > 0 ? `Rank #${rank}` : 'Unranked';
+      } catch (error) {
+        console.error('Get rank error:', error);
+      }
     }
 
     // Load Rooms
@@ -742,7 +1431,11 @@
         <span class="room-status ${room.status}">${room.status}</span>
       `;
       
-      card.onclick = () => joinRoom(roomId);
+      card.onclick = () => {
+        if (playerCount < 4 && room.status === 'waiting') {
+          joinRoom(roomId);
+        }
+      };
       return card;
     }
 
@@ -910,8 +1603,8 @@
       document.getElementById('gameStatus').textContent = 'Game in progress!';
       
       switch(gameType) {
-        case 'coinflip':
-          initCoinFlip();
+        case 'trivia':
+          initTrivia();
           break;
         case 'reaction':
           initReaction();
@@ -919,49 +1612,63 @@
         case 'number':
           initNumber();
           break;
+        default:
+          initTrivia();
       }
     }
 
-    // Coin Flip Game
-    function initCoinFlip() {
+    // Trivia Battle Game
+    function initTrivia() {
       gameState.round = 0;
       gameState.score = 0;
-      nextCoinFlip();
+      gameState.correctAnswers = 0;
+      gameState.questions = [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 5);
+      nextTrivia();
     }
 
-    function nextCoinFlip() {
-      if (gameState.round >= 5) {
+    function nextTrivia() {
+      if (gameState.round >= 5 || gameState.correctAnswers >= 3) {
         endGame();
         return;
       }
       
+      const question = gameState.questions[gameState.round];
       gameState.round++;
+      gameState.questionStartTime = Date.now();
+      
       const gameArea = document.getElementById('gameArea');
       gameArea.innerHTML = `
-        <p class="game-instruction">Round ${gameState.round}/5 - Guess the coin flip!</p>
-        <div class="game-buttons">
-          <button class="game-btn" onclick="window.guessCoin('heads')">🪙 Heads</button>
-          <button class="game-btn" onclick="window.guessCoin('tails')">🦅 Tails</button>
+        <p class="game-instruction" style="font-size: 18px; margin-bottom: 24px;">${question.question}</p>
+        <div class="game-buttons" style="max-width: 600px; width: 100%;">
+          ${question.options.map((opt, idx) => 
+            `<button class="game-btn" style="padding: 20px 32px; font-size: 18px; width: 100%;" onclick="window.answerTrivia(${idx})">${String.fromCharCode(65 + idx)}. ${opt}</button>`
+          ).join('')}
         </div>
+        <p style="color: #aaa; margin-top: 20px; font-size: 14px;">Question ${gameState.round}/5 | Correct: ${gameState.correctAnswers}/3</p>
       `;
     }
 
-    window.guessCoin = function(guess) {
-      const result = Math.random() < 0.5 ? 'heads' : 'tails';
-      const correct = guess === result;
+    window.answerTrivia = function(answer) {
+      const question = gameState.questions[gameState.round - 1];
+      const correct = answer === question.correct;
+      const timeBonus = Math.max(0, 30 - Math.floor((Date.now() - gameState.questionStartTime) / 1000));
       
-      if (correct) gameState.score += 20;
+      if (correct) {
+        gameState.correctAnswers++;
+        gameState.score += 20 + timeBonus;
+      }
       
       const gameArea = document.getElementById('gameArea');
       gameArea.innerHTML = `
-        <div class="game-score" style="font-size: 72px; margin: 32px 0;">${result === 'heads' ? '🪙' : '🦅'}</div>
-        <p class="game-instruction" style="color: ${correct ? '#00ff88' : '#ff6666'};">
-          ${result.toUpperCase()} - ${correct ? 'Correct! +20pts' : 'Wrong!'}
+        <p class="game-instruction" style="color: ${correct ? '#00ff88' : '#ff6666'}; font-size: 32px;">
+          ${correct ? '✓ Correct!' : '✗ Wrong'}
         </p>
+        <p style="color: #aaa; margin-top: 16px;">The answer was: ${question.options[question.correct]}</p>
+        ${correct ? `<p style="color: #00ffff; margin-top: 12px;">+${20 + timeBonus} points (${timeBonus} time bonus)</p>` : ''}
         <div class="game-score">${gameState.score} pts</div>
       `;
       
-      setTimeout(nextCoinFlip, 1500);
+      setTimeout(nextTrivia, 2000);
     };
 
     // Reaction Game
@@ -1008,49 +1715,85 @@
       }, waitTime);
     }
 
-    // Number Prediction Game
+    // Number Roulette Game
     function initNumber() {
-      gameState.round = 0;
+      gameState.guesses = 0;
       gameState.score = 0;
-      nextNumberRound();
+      gameState.targetNumber = Math.floor(Math.random() * 100) + 1;
+      gameState.hints = [];
+      nextNumberGuess();
     }
 
-    function nextNumberRound() {
-      if (gameState.round >= 5) {
+    function nextNumberGuess() {
+      if (gameState.guesses >= 5) {
         endGame();
         return;
       }
       
-      gameState.round++;
-      gameState.targetNumber = Math.floor(Math.random() * 10) + 1;
-      
       const gameArea = document.getElementById('gameArea');
       gameArea.innerHTML = `
-        <p class="game-instruction">Round ${gameState.round}/5 - Guess the number (1-10)</p>
-        <div class="game-buttons" style="max-width: 500px;">
-          ${[1,2,3,4,5,6,7,8,9,10].map(n => 
-            `<button class="game-btn" style="padding: 16px 24px; font-size: 20px;" onclick="window.guessNumber(${n})">${n}</button>`
-          ).join('')}
+        <p class="game-instruction">Guess the number (1-100)</p>
+        <p style="color: #aaa; font-size: 14px; margin-bottom: 20px;">Guesses: ${gameState.guesses}/5</p>
+        ${gameState.hints.length > 0 ? `
+          <div style="margin-bottom: 20px;">
+            ${gameState.hints.map(h => `<p style="color: #ff6600; font-size: 16px;">${h}</p>`).join('')}
+          </div>
+        ` : ''}
+        <div style="display: flex; gap: 12px; align-items: center; justify-content: center;">
+          <input type="number" id="numberInput" min="1" max="100" 
+            style="padding: 16px; font-size: 24px; width: 120px; text-align: center; background: rgba(0,0,0,0.5); border: 2px solid #00ffff; border-radius: 8px; color: white;" 
+            placeholder="1-100">
+          <button class="game-btn" style="padding: 16px 32px;" onclick="window.submitNumberGuess()">Submit</button>
         </div>
       `;
+      
+      document.getElementById('numberInput').focus();
+      document.getElementById('numberInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') window.submitNumberGuess();
+      });
     }
 
-    window.guessNumber = function(guess) {
-      const correct = guess === gameState.targetNumber;
-      if (correct) gameState.score += 20;
+    window.submitNumberGuess = function() {
+      const input = document.getElementById('numberInput');
+      const guess = parseInt(input.value);
       
-      const gameArea = document.getElementById('gameArea');
-      gameArea.innerHTML = `
-        <p class="game-instruction" style="color: ${correct ? '#00ff88' : '#ff6666'};">
-          The number was ${gameState.targetNumber}
-        </p>
-        <div class="game-score" style="font-size: 64px; color: ${correct ? '#00ff88' : '#ff6666'};">
-          ${correct ? '✓ Correct!' : '✗ Wrong'}
-        </div>
-        <div class="game-score">${gameState.score} pts</div>
-      `;
+      if (!guess || guess < 1 || guess > 100) {
+        return;
+      }
       
-      setTimeout(nextNumberRound, 1500);
+      gameState.guesses++;
+      const diff = Math.abs(guess - gameState.targetNumber);
+      
+      if (guess === gameState.targetNumber) {
+        gameState.score = 100 - (gameState.guesses - 1) * 15;
+        const gameArea = document.getElementById('gameArea');
+        gameArea.innerHTML = `
+          <p class="game-instruction" style="color: #00ff88; font-size: 36px;">🎉 Correct!</p>
+          <p style="color: #00ffff; font-size: 24px; margin: 20px 0;">The number was ${gameState.targetNumber}</p>
+          <p style="color: #aaa;">Found in ${gameState.guesses} guess${gameState.guesses > 1 ? 'es' : ''}</p>
+          <div class="game-score">${gameState.score} pts</div>
+        `;
+        setTimeout(endGame, 2000);
+        return;
+      }
+      
+      const hint = guess < gameState.targetNumber ? `${guess} is too LOW` : `${guess} is too HIGH`;
+      gameState.hints.push(hint);
+      
+      if (gameState.guesses >= 5) {
+        gameState.score = Math.max(0, 50 - diff);
+        const gameArea = document.getElementById('gameArea');
+        gameArea.innerHTML = `
+          <p class="game-instruction" style="color: #ff6666; font-size: 32px;">Out of guesses!</p>
+          <p style="color: #00ffff; font-size: 24px; margin: 20px 0;">The number was ${gameState.targetNumber}</p>
+          <p style="color: #aaa;">Your last guess: ${guess} (off by ${diff})</p>
+          <div class="game-score">${gameState.score} pts</div>
+        `;
+        setTimeout(endGame, 2000);
+        return;
+      }
+      
+      nextNumberGuess();
     };
 
     // End Game
@@ -1084,14 +1827,42 @@
             }
           });
           
-          // Update room with winner
+          // Update room with winner and award credits/points
+          const game = GAMES.find(g => g.id === roomData.gameType) || GAMES[0];
+          
+          if (winnerId === currentUser.uid) {
+            // Award credits and points to winner
+            await updateDoc(doc(db, 'users', currentUser.uid), {
+              credits: userData.credits + game.creditsReward,
+              score: userData.score + game.pointsReward,
+              totalGames: userData.totalGames + 1,
+              totalWins: userData.totalWins + 1,
+              winStreak: userData.winStreak + 1
+            });
+            userData.credits += game.creditsReward;
+            userData.score += game.pointsReward;
+            userData.totalGames += 1;
+            userData.totalWins += 1;
+            userData.winStreak += 1;
+          } else {
+            // Update games played and reset streak for loser
+            await updateDoc(doc(db, 'users', currentUser.uid), {
+              totalGames: userData.totalGames + 1,
+              winStreak: 0
+            });
+            userData.totalGames += 1;
+            userData.winStreak = 0;
+          }
+          
           await updateDoc(roomRef, {
             status: 'finished',
             winner: {
               userId: winnerId,
               username: winnerData.username,
               link: winnerData.link,
-              score: maxScore
+              score: maxScore,
+              creditsEarned: game.creditsReward,
+              pointsEarned: game.pointsReward
             }
           });
           
@@ -1137,6 +1908,65 @@
       }, 2000);
     }
 
+    // Leaderboard Functions
+    window.showLeaderboard = function() {
+      showPage('leaderboardPage');
+      loadLeaderboard('score');
+    };
+
+    window.switchLeaderboard = function(type) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      loadLeaderboard(type);
+    };
+
+    async function loadLeaderboard(type = 'score') {
+      const listEl = document.getElementById('leaderboardList');
+      listEl.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading leaderboard...</p></div>';
+      
+      try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, orderBy(type, 'desc'), limit(10));
+        
+        if (leaderboardListener) leaderboardListener();
+        
+        leaderboardListener = onSnapshot(q, (snapshot) => {
+          listEl.innerHTML = '';
+          
+          if (snapshot.empty) {
+            listEl.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">No players yet</p>';
+            return;
+          }
+          
+          snapshot.forEach((docSnap, index) => {
+            const user = docSnap.data();
+            const item = document.createElement('div');
+            item.className = 'leaderboard-item' + (docSnap.id === currentUser?.uid ? ' current-user' : '');
+            
+            let rankClass = '';
+            if (index === 0) rankClass = ' top1';
+            else if (index === 1) rankClass = ' top2';
+            else if (index === 2) rankClass = ' top3';
+            
+            item.innerHTML = `
+              <div class="leaderboard-rank${rankClass}">#${index + 1}</div>
+              <div class="leaderboard-avatar" style="background: ${user.avatar || '#8b5cf6'};">👤</div>
+              <div class="leaderboard-info">
+                <div class="leaderboard-name">${user.username || 'Player'}</div>
+                <div class="leaderboard-stats">${user.totalWins || 0} wins | ${user.totalGames || 0} games</div>
+              </div>
+              <div class="leaderboard-score">${type === 'score' ? '⭐' : '💰'} ${user[type] || 0}</div>
+            `;
+            
+            listEl.appendChild(item);
+          });
+        });
+      } catch (error) {
+        console.error('Leaderboard error:', error);
+        listEl.innerHTML = '<p style="text-align: center; color: #ff6666; padding: 40px;">Error loading leaderboard</p>';
+      }
+    }
+
     // Leave Room
     window.leaveRoom = function() {
       if (roomListener) roomListener();
@@ -1155,8 +1985,15 @@
       loadRooms();
     };
 
-    // Initialize
-    console.log('🎮 Play to Promote - Firebase Multiplayer Initialized');
+    // Initialize App
+    async function initializeApp() {
+      console.log('🎮 Play to Promote - Initializing...');
+      showPage('landingPage');
+    }
+
+    // Start the app when Firebase is ready
+    initializeApp();
+    
     console.log('✅ Firebase connected');
     console.log('✅ Auth ready');
     console.log('✅ Firestore ready');
