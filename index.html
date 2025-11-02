@@ -10,41 +10,100 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a2e;
             color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        header { text-align: center; padding: 40px 20px; margin-bottom: 40px; }
-        h1 { font-size: 3em; background: linear-gradient(45deg, #00d4ff, #8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .container { width: 100%; max-width: 1200px; padding: 20px; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2.5em; color: #00d4ff; margin-bottom: 10px; }
         
-        .login-page { display: flex; justify-content: center; align-items: center; min-height: 60vh; }
-        .login-card { background: rgba(30, 30, 50, 0.95); border: 2px solid rgba(138, 43, 226, 0.5); border-radius: 20px; padding: 50px; text-align: center; max-width: 400px; }
-        .login-card h2 { margin-bottom: 30px; font-size: 1.8em; color: #00d4ff; }
+        .page { display: none; }
+        .page.active { display: block; }
         
-        .button-group { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
-        button { padding: 15px 30px; font-size: 1.1em; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.3s ease; }
-        .btn-primary { background: linear-gradient(45deg, #00d4ff, #0099cc); color: #000; }
-        .btn-primary:hover { transform: translateY(-2px); }
-        .btn-secondary { background: linear-gradient(45deg, #8a2be2, #5a0a92); color: #fff; }
-        .btn-secondary:hover { transform: translateY(-2px); }
+        .login-container {
+            background: #16213e;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
         
-        .dashboard-page { display: none; }
-        .dashboard-page.active { display: block; }
+        .login-container h2 { margin-bottom: 30px; color: #00d4ff; }
         
-        .profile-header { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 30, 50, 0.95); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(138, 43, 226, 0.3); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: rgba(30, 30, 50, 0.95); border: 2px solid rgba(138, 43, 226, 0.3); padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-value { font-size: 2em; font-weight: bold; color: #00d4ff; margin-bottom: 5px; }
-        .stat-label { color: #999; font-size: 0.9em; }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
         
-        .form-container { background: rgba(30, 30, 50, 0.95); border: 2px solid rgba(138, 43, 226, 0.5); border-radius: 20px; padding: 40px; max-width: 450px; margin: 30px auto; display: none; }
-        .form-container.active { display: block; }
+        .btn-quick { background: #00d4ff; color: #000; }
+        .btn-quick:hover { background: #00a8cc; }
+        
+        .btn-profile { background: #8a2be2; color: #fff; }
+        .btn-profile:hover { background: #6b1db5; }
+        
+        .btn-logout { background: #ff4444; color: #fff; width: auto; padding: 8px 15px; }
+        
+        .dashboard {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .profile-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .profile-info h2 { color: #00d4ff; }
+        
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat { background: #0f3460; padding: 20px; border-radius: 5px; text-align: center; }
+        .stat-value { font-size: 2em; color: #00d4ff; font-weight: bold; }
+        .stat-label { color: #999; margin-top: 5px; }
+        
+        .games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .game-card { background: #0f3460; padding: 20px; border-radius: 5px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .game-card:hover { background: #1a5490; }
+        .game-card .icon { font-size: 2em; margin-bottom: 10px; }
+        
+        .form-container {
+            background: #16213e;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #00d4ff; }
-        .form-group input { width: 100%; padding: 12px; border: 2px solid rgba(138, 43, 226, 0.3); background: rgba(20, 20, 40, 0.8); color: #fff; border-radius: 8px; font-size: 1em; }
-        .form-group input:focus { outline: none; border-color: #00d4ff; }
+        .form-group label { display: block; margin-bottom: 8px; color: #00d4ff; font-weight: bold; }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            background: #0f3460;
+            color: #fff;
+            font-size: 1em;
+        }
+        
+        .form-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8em; }
+            .games-grid { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -54,84 +113,83 @@
         </header>
         
         <!-- LOGIN PAGE -->
-        <div id="login-page" class="login-page">
-            <div class="login-card">
+        <div id="login-page" class="page active">
+            <div class="login-container">
                 <h2>Welcome!</h2>
-                <p style="margin-bottom: 20px;">Choose how you want to play:</p>
-                <div class="button-group">
-                    <button class="btn-primary" id="quick-play-btn">⚡ Quick Play</button>
-                    <button class="btn-secondary" id="create-profile-btn">👤 Create Profile</button>
-                </div>
+                <p style="margin-bottom: 30px;">Choose how to play:</p>
+                <button class="btn-quick" onclick="quickPlay()">⚡ Quick Play</button>
+                <button class="btn-profile" onclick="showProfileForm()">👤 Create Profile</button>
             </div>
         </div>
         
-        <!-- PROFILE FORM -->
-        <div id="form-container" class="form-container">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #00d4ff;">Create Profile</h2>
-            <form id="profile-form">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="username" placeholder="Username" required>
-                </div>
-                <div class="form-group">
-                    <label>Promo Link</label>
-                    <input type="url" id="promo-link" placeholder="https://your-link.com" required>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 30px;">
-                    <button type="button" class="btn-secondary" id="cancel-btn">Cancel</button>
-                    <button type="submit" class="btn-primary">Create</button>
-                </div>
-            </form>
+        <!-- PROFILE FORM PAGE -->
+        <div id="profile-page" class="page">
+            <div class="form-container">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #00d4ff;">Create Profile</h2>
+                <form onsubmit="createProfile(event)">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" placeholder="Your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Promo Link</label>
+                        <input type="url" id="promo-link" placeholder="https://your-link.com" required>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="btn-quick" onclick="backToLogin()" style="background: #666;">Back</button>
+                        <button type="submit" class="btn-profile">Create</button>
+                    </div>
+                </form>
+            </div>
         </div>
         
         <!-- DASHBOARD PAGE -->
-        <div id="dashboard-page" class="dashboard-page">
-            <div class="profile-header">
-                <div>
-                    <h3 id="username-display">Welcome!</h3>
-                    <p id="link-display" style="color: #00d4ff; font-size: 0.9em;"></p>
+        <div id="dashboard-page" class="page">
+            <div class="dashboard">
+                <div class="profile-info">
+                    <div>
+                        <h2 id="user-name">Welcome!</h2>
+                        <p id="user-link" style="color: #00d4ff; font-size: 0.9em;">Your Link</p>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
                 </div>
-                <button class="btn-secondary" id="logout-btn" style="padding: 10px 20px;">Logout</button>
-            </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="credits">0</div>
-                    <div class="stat-label">Credits</div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="credits-val">0</div>
+                        <div class="stat-label">Credits</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="score-val">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="wins-val">0</div>
+                        <div class="stat-label">Wins</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="score">0</div>
-                    <div class="stat-label">Score</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="wins">0</div>
-                    <div class="stat-label">Wins</div>
-                </div>
-            </div>
-            
-            <button class="btn-primary" id="find-game-btn" style="width: 100%; padding: 20px; margin: 20px 0;">🎮 Find Game</button>
-            
-            <div id="games-section" style="display: none; margin-top: 40px;">
-                <h3 style="margin-bottom: 20px; color: #00d4ff;">Select a Game:</h3>
-                <div class="stats-grid">
-                    <button class="btn-secondary" style="padding: 30px 20px; cursor: pointer;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">❓</div>
-                        <div>Trivia</div>
-                    </button>
-                    <button class="btn-secondary" style="padding: 30px 20px; cursor: pointer;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">⚡</div>
-                        <div>Reaction</div>
-                    </button>
-                    <button class="btn-secondary" style="padding: 30px 20px; cursor: pointer;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">🎲</div>
-                        <div>Number</div>
-                    </button>
+                
+                <h3 style="color: #00d4ff; margin-bottom: 20px;">🎮 Available Games:</h3>
+                <div class="games-grid">
+                    <div class="game-card" onclick="playGame('trivia')">
+                        <div class="icon">❓</div>
+                        <div>Trivia Battle</div>
+                    </div>
+                    <div class="game-card" onclick="playGame('reaction')">
+                        <div class="icon">⚡</div>
+                        <div>Reaction Master</div>
+                    </div>
+                    <div class="game-card" onclick="playGame('number')">
+                        <div class="icon">🎲</div>
+                        <div>Number Roulette</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBX0lxB7NZVMZftkB-T1jp9PfqNkQQHtXg",
             authDomain: "playtopromote.firebaseapp.com",
@@ -145,59 +203,48 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
         
+        // State
         let currentUser = null;
         let currentUsername = "";
         let currentLink = "";
-        let userStats = { credits: 0, score: 0, wins: 0 };
+        let stats = { credits: 0, score: 0, wins: 0 };
         
-        const quickPlayBtn = document.getElementById('quick-play-btn');
-        const createProfileBtn = document.getElementById('create-profile-btn');
-        const profileForm = document.getElementById('profile-form');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const findGameBtn = document.getElementById('find-game-btn');
+        // Initialize
+        window.addEventListener('load', checkSession);
         
-        const loginPage = document.getElementById('login-page');
-        const formContainer = document.getElementById('form-container');
-        const dashboardPage = document.getElementById('dashboard-page');
-        
-        quickPlayBtn.addEventListener('click', quickPlay);
-        createProfileBtn.addEventListener('click', () => {
-            loginPage.style.display = 'none';
-            formContainer.classList.add('active');
-        });
-        cancelBtn.addEventListener('click', () => {
-            formContainer.classList.remove('active');
-            loginPage.style.display = 'flex';
-        });
-        profileForm.addEventListener('submit', createProfile);
-        logoutBtn.addEventListener('click', logout);
-        findGameBtn.addEventListener('click', () => {
-            document.getElementById('games-section').style.display = document.getElementById('games-section').style.display === 'none' ? 'block' : 'none';
-        });
-        
-        window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('ptpUser');
+        function checkSession() {
+            const saved = localStorage.getItem('ptpSession');
             if (saved) {
                 const user = JSON.parse(saved);
-                currentUser = user;
+                currentUser = user.uid;
                 currentUsername = user.username;
                 currentLink = user.link;
-                userStats = user.stats || userStats;
+                stats = user.stats || stats;
                 showDashboard();
             }
-        });
+        }
         
         async function quickPlay() {
             try {
                 const result = await auth.signInAnonymously();
-                currentUser = { uid: result.user.uid };
+                currentUser = result.user.uid;
                 currentUsername = `Player_${Math.random().toString(36).substr(2, 9)}`;
                 currentLink = "https://playtopromote.com";
+                saveSes();
                 showDashboard();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
+        }
+        
+        function showProfileForm() {
+            document.getElementById('login-page').classList.remove('active');
+            document.getElementById('profile-page').classList.add('active');
+        }
+        
+        function backToLogin() {
+            document.getElementById('profile-page').classList.remove('active');
+            document.getElementById('login-page').classList.add('active');
         }
         
         async function createProfile(e) {
@@ -205,43 +252,62 @@
             const username = document.getElementById('username').value;
             const link = document.getElementById('promo-link').value;
             
+            if (!username || !link) {
+                alert('Please fill all fields');
+                return;
+            }
+            
             try {
                 const result = await auth.signInAnonymously();
-                const uid = result.user.uid;
-                currentUser = { uid: uid };
+                currentUser = result.user.uid;
                 currentUsername = username;
                 currentLink = link;
                 
-                await db.collection("users").doc(uid).set({
-                    username, link, uid, score: 0, credits: 0, wins: 0, createdAt: new Date()
+                await db.collection("users").doc(currentUser).set({
+                    username, link, uid: currentUser, score: 0, credits: 0, wins: 0, createdAt: new Date()
                 });
                 
-                localStorage.setItem('ptpUser', JSON.stringify({ uid, username, link, stats: userStats }));
+                saveSes();
                 showDashboard();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
         }
         
+        function saveSes() {
+            localStorage.setItem('ptpSession', JSON.stringify({
+                uid: currentUser,
+                username: currentUsername,
+                link: currentLink,
+                stats: stats
+            }));
+        }
+        
         function showDashboard() {
-            loginPage.style.display = 'none';
-            formContainer.classList.remove('active');
-            dashboardPage.classList.add('active');
+            document.getElementById('login-page').classList.remove('active');
+            document.getElementById('profile-page').classList.remove('active');
+            document.getElementById('dashboard-page').classList.add('active');
             
-            document.getElementById('username-display').textContent = `👋 ${currentUsername}`;
-            document.getElementById('link-display').textContent = currentLink;
-            document.getElementById('credits').textContent = userStats.credits;
-            document.getElementById('score').textContent = userStats.score;
-            document.getElementById('wins').textContent = userStats.wins;
+            document.getElementById('user-name').textContent = `👋 ${currentUsername}`;
+            document.getElementById('user-link').textContent = currentLink;
+            document.getElementById('credits-val').textContent = stats.credits;
+            document.getElementById('score-val').textContent = stats.score;
+            document.getElementById('wins-val').textContent = stats.wins;
+        }
+        
+        function playGame(game) {
+            alert(`🎮 ${game} game starting... This will connect to multiplayer rooms soon!`);
         }
         
         function logout() {
-            localStorage.removeItem('ptpUser');
+            localStorage.removeItem('ptpSession');
             currentUser = null;
-            dashboardPage.classList.remove('active');
-            loginPage.style.display = 'flex';
-            document.getElementById('username').value = '';
-            document.getElementById('promo-link').value = '';
+            currentUsername = "";
+            currentLink = "";
+            stats = { credits: 0, score: 0, wins: 0 };
+            
+            document.getElementById('dashboard-page').classList.remove('active');
+            document.getElementById('login-page').classList.add('active');
         }
     </script>
 </body>
